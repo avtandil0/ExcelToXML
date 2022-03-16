@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+
+</div>
+<div style="display:flex; justify-content: center;">
+    <form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Index">
+        <div style="display: flex">
+            <div>
+                @*<input type="file" name="files" multiple />*@
+                <div class="mb-3">
+                    <input style="width:500px" class="form-control" type="file" name="files" multiple id="formFile">
+                </div>
+            </div>
+            <div style="margin-left: 15px;">
+                <input class="btn btn-primary" type="submit" value="Convert To XML" />
+            </div>
+        </div>
+
+    </form>
+</div>
