@@ -383,6 +383,45 @@ namespace ExcelToXML.Controllers
                 FinEntryLineAmount.AppendChild(VAT);
                 FinEntryLine.AppendChild(FinEntryLineAmount);
 
+
+                XmlNode VATTransaction = doc.CreateElement("VATTransaction");
+                ((XmlElement)VATTransaction).SetAttribute("code", "0");
+
+                XmlNode VATAmount = doc.CreateElement("VATAmount");
+                VATAmount.AppendChild(doc.CreateTextNode("0"));
+                VATTransaction.AppendChild(VATAmount);
+
+                XmlNode VATBaseAmount = doc.CreateElement("VATBaseAmount");
+                VATBaseAmount.AppendChild(doc.CreateTextNode("0"));
+                VATTransaction.AppendChild(VATBaseAmount);
+
+                XmlNode VATBaseAmountFC = doc.CreateElement("VATBaseAmountFC");
+                VATBaseAmountFC.AppendChild(doc.CreateTextNode("0"));
+                VATTransaction.AppendChild(VATBaseAmountFC);
+
+                FinEntryLine.AppendChild(VATTransaction);
+
+
+
+                XmlNode Payment = doc.CreateElement("Payment");
+
+                XmlNode PaymentMethod = doc.CreateElement("PaymentMethod");
+                ((XmlElement)PaymentMethod).SetAttribute("code", "B");
+                Payment.AppendChild(PaymentMethod);
+
+                XmlNode PaymentCondition = doc.CreateElement("PaymentCondition");
+                ((XmlElement)PaymentCondition).SetAttribute("code", "00");
+
+                XmlNode PaymentConditionDescription = doc.CreateElement("Description");
+                ((XmlElement)PaymentConditionDescription).SetAttribute("code", "B");
+                PaymentCondition.AppendChild(PaymentConditionDescription);
+
+
+                Payment.AppendChild(PaymentCondition);
+
+
+                FinEntryLine.AppendChild(Payment);
+
                 ///====================================
                 ///====================================
                 ///====================================
