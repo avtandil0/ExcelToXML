@@ -241,6 +241,80 @@ namespace ExcelToXML.Controllers
             TransactionNumber.AppendChild(doc.CreateTextNode("913"));
             BankStatementLine.AppendChild(TransactionNumber);
 
+            //////////////
+            XmlNode Amount = doc.CreateElement("Amount");
+
+            XmlNode AmountCurrency = doc.CreateElement("Currency");
+            ((XmlElement)AmountCurrency).SetAttribute("code", "GEL");
+
+            Amount.AppendChild(AmountCurrency);
+
+            XmlNode Debit = doc.CreateElement("Debit");
+            Debit.AppendChild(doc.CreateTextNode("0.0"));
+            Amount.AppendChild(Debit);
+
+            XmlNode Credit = doc.CreateElement("Credit");
+            Credit.AppendChild(doc.CreateTextNode("19.89"));
+            Amount.AppendChild(Credit);
+
+
+            BankStatementLine.AppendChild(Amount);
+
+
+            XmlNode ForeignAmount = doc.CreateElement("ForeignAmount");
+
+            XmlNode ForeignAmountCurrency = doc.CreateElement("Currency");
+            ((XmlElement)ForeignAmountCurrency).SetAttribute("code", "GEL");
+
+            ForeignAmount.AppendChild(ForeignAmountCurrency);
+
+            XmlNode ForeignAmountDebit = doc.CreateElement("Debit");
+            ForeignAmountDebit.AppendChild(doc.CreateTextNode("0.0"));
+            ForeignAmount.AppendChild(ForeignAmountDebit);
+
+            XmlNode ForeignAmountCredit = doc.CreateElement("Credit");
+            ForeignAmountCredit.AppendChild(doc.CreateTextNode("19.89"));
+            ForeignAmount.AppendChild(ForeignAmountCredit);
+
+            XmlNode Rate = doc.CreateElement("Rate");
+            Rate.AppendChild(doc.CreateTextNode("1"));
+
+            ForeignAmount.AppendChild(Rate);
+
+            BankStatementLine.AppendChild(ForeignAmount);
+            
+            ///
+            
+            XmlNode Reference = doc.CreateElement("Reference");
+            Reference.AppendChild(doc.CreateTextNode(""));
+            
+            BankStatementLine.AppendChild(Reference);
+            
+            XmlNode YourRef = doc.CreateElement("YourRef");
+            YourRef.AppendChild(doc.CreateTextNode("11207821"));
+            
+            BankStatementLine.AppendChild(YourRef);
+            
+            XmlNode InvoiceNumber = doc.CreateElement("InvoiceNumber");
+            InvoiceNumber.AppendChild(doc.CreateTextNode("11207821"));
+            
+            BankStatementLine.AppendChild(InvoiceNumber);
+            
+            XmlNode IsBlocked = doc.CreateElement("IsBlocked");
+            IsBlocked.AppendChild(doc.CreateTextNode("0"));
+            
+            BankStatementLine.AppendChild(IsBlocked);
+            
+            XmlNode PaymentTermIDs = doc.CreateElement("PaymentTermIDs");
+            XmlNode PaymentTermID = doc.CreateElement("PaymentTermID");
+            PaymentTermID.AppendChild(doc.CreateTextNode("{5E3224EF-910E-43C1-9381-97E22C43363E}"));
+            PaymentTermIDs.AppendChild(PaymentTermID);
+            BankStatementLine.AppendChild(PaymentTermIDs);
+            
+            XmlNode BankStatementLineGLOffset = doc.CreateElement("GLOffset");
+            ((XmlElement)BankStatementLineGLOffset).SetAttribute("code", "   000002");
+            
+            BankStatementLine.AppendChild(BankStatementLineGLOffset);
             BankStatement.AppendChild(BankStatementLine);
 
             //////////////////////////////////////////////////////////////ციკლი
@@ -359,7 +433,7 @@ namespace ExcelToXML.Controllers
             XmlNode ForeignAmountCurrency = doc.CreateElement("Currency");
             ((XmlElement)ForeignAmountCurrency).SetAttribute("code", "GEL");
 
-            ForeignAmount.AppendChild(AmountCurrency);
+            ForeignAmount.AppendChild(ForeignAmountCurrency);
 
             XmlNode ForeignAmountDebit = doc.CreateElement("Debit");
             ForeignAmountDebit.AppendChild(doc.CreateTextNode("0.0"));
@@ -367,7 +441,7 @@ namespace ExcelToXML.Controllers
 
             XmlNode ForeignAmountCredit = doc.CreateElement("Credit");
             ForeignAmountCredit.AppendChild(doc.CreateTextNode("19.89"));
-            ForeignAmount.AppendChild(Credit);
+            ForeignAmount.AppendChild(ForeignAmountCredit);
 
             XmlNode Rate = doc.CreateElement("Rate");
             Rate.AppendChild(doc.CreateTextNode("1"));
