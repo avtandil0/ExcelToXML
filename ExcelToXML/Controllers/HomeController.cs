@@ -10,16 +10,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using Microsoft.AspNetCore.Hosting;
+using OfficeOpenXml;
 
 namespace ExcelToXML.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private IWebHostEnvironment Environment;
 
-        public HomeController(ILogger<HomeController> logger)
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment _environment)
         {
             _logger = logger;
+            Environment = _environment;
+
         }
 
         public IActionResult Index()
@@ -33,25 +39,71 @@ namespace ExcelToXML.Controllers
             long size = files.Sum(f => f.Length);
 
             var filePaths = new List<string>();
-            foreach (var formFile in files)
-            {
-                if (formFile.Length > 0)
-                {
-                    // full path to file in temp location
-                    var filePath = Path.GetTempFileName();
-                    filePaths.Add(filePath);
+            var file = files[0];
+            // if (file == null || file.Length == 0)
+            //     return new Result(false, 0, "File Not Found");
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await formFile.CopyToAsync(stream);
-                    }
-                }
+            string fileExtension = Path.GetExtension(file.FileName);
+            // if (fileExtension != ".xls" && fileExtension != ".xlsx")
+            //     return new Result(false, 0, "File Not Found");
+
+            string wwwPath = this.Environment.WebRootPath;
+            string contentPath = this.Environment.ContentRootPath;
+           
+            string rootFolder = Path.Combine(contentPath, "UploadExcels");
+            if (!Directory.Exists(rootFolder))
+            {
+                Directory.CreateDirectory(rootFolder);
+            }
+            
+            var fileName = file.FileName;
+            var filePath = Path.Combine(rootFolder, fileName);
+            var fileLocation = new FileInfo(filePath);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
             }
 
-            // process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-            //return Ok(new { count = files.Count, size, filePaths });
+            // if (file.Length <= 0)
+            //     return new Result(false, 0, "File Not Found");
 
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+
+
+            FileStreamResult xmlDoc;
+            using (ExcelPackage package = new ExcelPackage(fileLocation))
+            {
+                var sheet = package.Workbook.Worksheets.FirstOrDefault();
+
+                ExcelWorksheet workSheet = package.Workbook.Worksheets.FirstOrDefault();
+
+                int totalRows = workSheet.Dimension.Rows;
+                var rowLength = workSheet.Dimension.End.Row;
+
+                xmlDoc = importToXML(workSheet);
+
+
+            }
+            
+            
+            return xmlDoc;
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public FileStreamResult importToXML(ExcelWorksheet workSheet)
+        {
             MemoryStream ms = new MemoryStream();
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = true;
@@ -72,9 +124,12 @@ namespace ExcelToXML.Controllers
 
                 var GLEntryNode = getGLEntryNode(doc);
 
-                for (int i = 1; i < 3; i++)
+                var rowLength = workSheet.Dimension.End.Row;
+                
+                
+                for (int i = 14; i < rowLength; i++)
                 {
-                    var FinEntryLine = getFinEntryLine(i, doc);
+                    var FinEntryLine = getFinEntryLine(i, doc, workSheet);
 
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
@@ -100,18 +155,20 @@ namespace ExcelToXML.Controllers
 
         }
 
-        public IActionResult Privacy()
+
+        public string getGLAccountInEntryLine(string code)
         {
-            return View();
+            if (code == "COM")
+            {
+                return "741011";
+            }
+            if (code == "CCO")
+            {
+                return "129000";
+            }
+
+            return "311010";
         }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-
         public XmlNode getBankStatement(XmlDocument doc)
         {
             XmlNode BankStatement = doc.CreateElement("BankStatement");
@@ -627,23 +684,26 @@ namespace ExcelToXML.Controllers
 
             return GLEntryNode;
         }
-        public XmlNode getFinEntryLine(int i, XmlDocument doc)
+        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet)
         {
             XmlNode FinEntryLine = doc.CreateElement("FinEntryLine");
-            ((XmlElement)FinEntryLine).SetAttribute("number", i.ToString());
+            ((XmlElement)FinEntryLine).SetAttribute("number", (i-13).ToString());
             ((XmlElement)FinEntryLine).SetAttribute("type", "N");
             ((XmlElement)FinEntryLine).SetAttribute("subtype", "Z");
 
             XmlNode Date = doc.CreateElement("Date");
-            Date.AppendChild(doc.CreateTextNode("2022-02-03"));
+            var d = worksheet.Cells[i, 1].Value.ToString();
+            Date.AppendChild(doc.CreateTextNode(d));
             FinEntryLine.AppendChild(Date);
 
             XmlNode FinYear = doc.CreateElement("FinYear");
-            ((XmlElement)FinYear).SetAttribute("number", "2022");
+            ((XmlElement)FinYear).SetAttribute("number", DateTime.Parse(d).Year.ToString());
             FinEntryLine.AppendChild(FinYear);
 
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString());
+            
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", "  121003");
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "B");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
@@ -655,7 +715,7 @@ namespace ExcelToXML.Controllers
 
 
             XmlNode FinEntryLineDescription = doc.CreateElement("Description");
-            FinEntryLineDescription.AppendChild(doc.CreateTextNode("Default cost center"));
+            FinEntryLineDescription.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 6].Value.ToString()));
             FinEntryLine.AppendChild(FinEntryLineDescription);
 
 
