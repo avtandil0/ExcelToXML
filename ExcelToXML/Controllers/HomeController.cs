@@ -127,20 +127,34 @@ namespace ExcelToXML.Controllers
                 var rowLength = workSheet.Dimension.End.Row;
                 
                 
-                for (int i = 14; i < rowLength; i++)
+                for (int i = 14; i <= rowLength; i++)
                 {
                     var FinEntryLine = getFinEntryLine(i, doc, workSheet);
 
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
 
-
-
                 var PaymentTerms = getPaymentTerms(doc);
-
                 GLEntryNode.AppendChild(PaymentTerms);
+                
+                
+                XmlNode BankStatement = doc.CreateElement("BankStatement");
+                ((XmlElement)BankStatement).SetAttribute("number", "24020023");
 
-                var BankStatement = getBankStatement(doc);
+                XmlNode Date = doc.CreateElement("Date");
+                Date.AppendChild(doc.CreateTextNode("2022-02-03"));
+                BankStatement.AppendChild(Date);
+
+                XmlNode GLOffset = doc.CreateElement("GLOffset");
+                ((XmlElement)GLOffset).SetAttribute("code", "   129000");
+                BankStatement.AppendChild(GLOffset);
+
+                for (int i = 14; i <= rowLength; i++)
+                {
+                    var BankStatementLine = getBankStatement(i,doc, workSheet);
+                    BankStatement.AppendChild(BankStatementLine);
+                    
+                }
 
                 GLEntryNode.AppendChild(BankStatement);
 
@@ -169,19 +183,9 @@ namespace ExcelToXML.Controllers
 
             return "311010";
         }
-        public XmlNode getBankStatement(XmlDocument doc)
+        public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet)
         {
-            XmlNode BankStatement = doc.CreateElement("BankStatement");
-            ((XmlElement)BankStatement).SetAttribute("number", "24020023");
-
-            XmlNode Date = doc.CreateElement("Date");
-            Date.AppendChild(doc.CreateTextNode("2022-02-03"));
-            BankStatement.AppendChild(Date);
-
-            XmlNode GLOffset = doc.CreateElement("GLOffset");
-            ((XmlElement)GLOffset).SetAttribute("code", "   129000");
-            BankStatement.AppendChild(GLOffset);
-
+          
 
             //////////////////////////////////////////////////////////////ციკლი
             XmlNode BankStatementLine = doc.CreateElement("BankStatementLine");
@@ -189,29 +193,34 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("termType", "S");
             ((XmlElement)BankStatementLine).SetAttribute("status", "J");
             ((XmlElement)BankStatementLine).SetAttribute("entry", "24020023");
+            ((XmlElement)BankStatementLine).SetAttribute("lineNo", (i-13).ToString());
             ((XmlElement)BankStatementLine).SetAttribute("ID", "{5E6C28FB-A64E-4508-9F2F-476556B6FF29}");
-            ((XmlElement)BankStatementLine).SetAttribute("lineNo", "1");
             ((XmlElement)BankStatementLine).SetAttribute("statementType", "B");
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
             XmlNode Description = doc.CreateElement("Description");
-            Description.AppendChild(doc.CreateTextNode("&#1026;&#1029;&#1108;&#164;&#166;&#1110;&#1111;^&#1114;&#1107;^  Our ref.: 11207815"));
+            Description.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 6].Value.ToString()));
             BankStatementLine.AppendChild(Description);
 
+            var d = worksheet.Cells[i, 1].Value.ToString();
+            var dateFormated = DateTime.Parse(d).ToString("yyyy-MM-dd");
+            
             XmlNode ValueDate = doc.CreateElement("ValueDate");
-            ValueDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            ValueDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(ValueDate);
 
             XmlNode ReportingDate = doc.CreateElement("ReportingDate");
-            ReportingDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            ReportingDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(ReportingDate);
 
             XmlNode StatementDate = doc.CreateElement("StatementDate");
-            StatementDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            StatementDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(StatementDate);
 
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString());
+            
             XmlNode GLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)GLAccount).SetAttribute("code", "  121003");
+            ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
             ((XmlElement)GLAccount).SetAttribute("type", "B");
             ((XmlElement)GLAccount).SetAttribute("subtype", "B");
             ((XmlElement)GLAccount).SetAttribute("side", "D");
@@ -372,11 +381,11 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLineGLOffset).SetAttribute("code", "   000002");
             
             BankStatementLine.AppendChild(BankStatementLineGLOffset);
-            BankStatement.AppendChild(BankStatementLine);
+            
 
             //////////////////////////////////////////////////////////////ციკლი
 
-            return BankStatement;
+            return BankStatementLine;
 
         }
 
@@ -693,7 +702,8 @@ namespace ExcelToXML.Controllers
 
             XmlNode Date = doc.CreateElement("Date");
             var d = worksheet.Cells[i, 1].Value.ToString();
-            Date.AppendChild(doc.CreateTextNode(d));
+            var dateFormated = DateTime.Parse(d).ToString("yyyy-MM-dd");
+            Date.AppendChild(doc.CreateTextNode(dateFormated));
             FinEntryLine.AppendChild(Date);
 
             XmlNode FinYear = doc.CreateElement("FinYear");
