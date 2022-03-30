@@ -194,6 +194,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("status", "J");
             ((XmlElement)BankStatementLine).SetAttribute("entry", "24020023");
             ((XmlElement)BankStatementLine).SetAttribute("lineNo", (i-13).ToString());
+            //საერთო paymant banktransactionId
             ((XmlElement)BankStatementLine).SetAttribute("ID", "{5E6C28FB-A64E-4508-9F2F-476556B6FF29}");
             ((XmlElement)BankStatementLine).SetAttribute("statementType", "B");
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
@@ -391,6 +392,9 @@ namespace ExcelToXML.Controllers
 
         public XmlNode getPaymentTerms(XmlDocument doc)
         {
+            // დაიჯამება და ერთი იქნება თუ COM არის
+            //დებეტი -> კრედიტში
+            //რეფერენს yourreferenc 802
             XmlNode PaymentTerms = doc.CreateElement("PaymentTerms");
 
             //GLEntry
@@ -695,6 +699,7 @@ namespace ExcelToXML.Controllers
         }
         public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet)
         {
+            //COM დაჯამდება, რეფერენსები იქნება საერთო
             XmlNode FinEntryLine = doc.CreateElement("FinEntryLine");
             ((XmlElement)FinEntryLine).SetAttribute("number", (i-13).ToString());
             ((XmlElement)FinEntryLine).SetAttribute("type", "N");
@@ -738,7 +743,7 @@ namespace ExcelToXML.Controllers
             FinEntryLineCostcenter.AppendChild(FinEntryLineCostcenterDescription);
 
             XmlNode FinEntryLineCostcenterGLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("code", "  121003");
+            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("code", "   719990");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("type", "B");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("subtype", "B");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("side", "D");
@@ -764,7 +769,10 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
 
-
+            // CCO -> კრედიტორი 3
+            // COM -> კრედიტორი 4
+            // სვა შემთხვევაში select vatnumber,crdnr,debnr from cicmpy where VatNumber = '102189454'(მიმღების საიდენთიფიკაციო კოდი)
+            // რომელიც null არაა იმით შეივსება
             XmlNode Creditor = doc.CreateElement("Creditor");
             ((XmlElement)Creditor).SetAttribute("code", "                   3");
             ((XmlElement)Creditor).SetAttribute("number", "     3");
@@ -800,13 +808,17 @@ namespace ExcelToXML.Controllers
             XmlNode FinEntryLineAmount = doc.CreateElement("Amount");
 
             XmlNode FinEntryLineAmountCurrency = doc.CreateElement("Currency");
+            //მე-8 ხაზიდან
             ((XmlElement)FinEntryLineAmountCurrency).SetAttribute("code", "  GEL");
             FinEntryLineAmount.AppendChild(FinEntryLineAmountCurrency);
 
+            //დებეტის ველიდან
+            
             XmlNode Debit = doc.CreateElement("Debit");
             Debit.AppendChild(doc.CreateTextNode("0"));
             FinEntryLineAmount.AppendChild(Debit);
 
+            //კრედიტის ველიდან
             XmlNode Credit = doc.CreateElement("Credit");
             Credit.AppendChild(doc.CreateTextNode("0"));
             FinEntryLineAmount.AppendChild(Credit);
@@ -957,10 +969,12 @@ namespace ExcelToXML.Controllers
             Payment.AppendChild(CSSDAmount2);
 
             XmlNode InvoiceNumber = doc.CreateElement("InvoiceNumber");
+            //select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
             InvoiceNumber.AppendChild(doc.CreateTextNode("11207815"));
             Payment.AppendChild(InvoiceNumber);
 
             XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
+            //new Guid
             BankTransactionID.AppendChild(doc.CreateTextNode("{5E6C28FB-A64E-4508-9F2F-476556B6FF29}"));
             Payment.AppendChild(BankTransactionID);
 
