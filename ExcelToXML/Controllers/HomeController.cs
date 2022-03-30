@@ -12,6 +12,8 @@ using System.Xml;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml;
+using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace ExcelToXML.Controllers
 {
@@ -19,12 +21,15 @@ namespace ExcelToXML.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private IWebHostEnvironment Environment;
+        private IConfiguration Configuration;
 
 
-        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment _environment)
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment _environment, IConfiguration _configuration)
         {
             _logger = logger;
             Environment = _environment;
+            Configuration = _configuration;
 
         }
 
@@ -82,6 +87,9 @@ namespace ExcelToXML.Controllers
                 int totalRows = workSheet.Dimension.Rows;
                 var rowLength = workSheet.Dimension.End.Row;
 
+
+                var entryNumber = getEntryNumber();
+
                 xmlDoc = importToXML(workSheet);
 
 
@@ -102,12 +110,73 @@ namespace ExcelToXML.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+
+        public string getEntryNumber()
+        {
+
+            //string connectionString =
+            // "Data Source=(local);Initial Catalog=Northwind;"
+            // + "Integrated Security=true";
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+            var dagbknr = "202";
+            string entryNumber = "" ;
+            string queryString =
+                "select max (bkstnr) from gbkmut ";
+            //   + "where dagbknr = @dagbknr ";
+
+            string queryString1 =
+               "select top 1 vatnumber,crdnr,debnr from cicmpy";
+
+           
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@dagbknr", dagbknr);
+
+                SqlCommand command1 = new SqlCommand(queryString1, connection);
+
+              
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        entryNumber = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                    SqlDataReader reader1 = command1.ExecuteReader();
+                    while (reader1.Read())
+                    {
+                        entryNumber = reader1[1].ToString();
+                    }
+                    reader1.Close();
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+            return entryNumber;
+        }
         public FileStreamResult importToXML(ExcelWorksheet workSheet)
         {
             MemoryStream ms = new MemoryStream();
             XmlWriterSettings xws = new XmlWriterSettings();
             xws.OmitXmlDeclaration = true;
             xws.Indent = true;
+
 
             using (XmlWriter xw = XmlWriter.Create(ms, xws))
             {
