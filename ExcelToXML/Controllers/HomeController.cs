@@ -170,6 +170,105 @@ namespace ExcelToXML.Controllers
 
             return entryNumber;
         }
+
+        public string getInvoiceNumber()
+        {
+
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+            var dagbknr = "202";
+            string invoiceNumber = "";
+            //select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
+            string queryString =
+                "select faktuurnr from gbkmut where faktuurnr like '%802' order by faktuurnr desc";
+            
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        invoiceNumber = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+            if(invoiceNumber != "")
+            {
+                var nextInvoiceNumber = Int16.Parse(invoiceNumber);
+                nextInvoiceNumber++;
+                return nextInvoiceNumber.ToString();
+            }
+            return "80200001";
+        }
+
+
+        public string getCreditorFromDB(string identityNumber)
+        {
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+            string crdnr="", debnr = "";
+           
+            string queryString = "select top 1 crdnr,debnr from cicmpy where vatnumber = @identityNumber ";
+
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@identityNumber", identityNumber);
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        crdnr = reader[0].ToString();
+                        debnr = reader[1].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+            if(crdnr != "")
+            {
+                return crdnr;
+            }
+            return debnr;
+        }
+
         public FileStreamResult importToXML(ExcelWorksheet workSheet)
         {
             MemoryStream ms = new MemoryStream();
@@ -194,11 +293,23 @@ namespace ExcelToXML.Controllers
                 var GLEntryNode = getGLEntryNode(doc);
 
                 var rowLength = workSheet.Dimension.End.Row;
-                
-                
+
+                var comIndex = 0;
+
+                var invoiceNumber = getInvoiceNumber();
+
                 for (int i = 14; i <= rowLength; i++)
                 {
-                    var FinEntryLine = getFinEntryLine(i, doc, workSheet);
+                    var j = i;
+                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
+                    //{
+                    //    if (comIndex == 0)
+                    //    {
+                    //        comIndex = i;
+                    //    }
+                    //    j = comIndex;
+                    //}
+                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber);
 
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
@@ -369,8 +480,9 @@ namespace ExcelToXML.Controllers
             BankStatementLine.AppendChild(BankAccount);
 
             XmlNode Creditor = doc.CreateElement("Creditor");
-            ((XmlElement)Creditor).SetAttribute("code", "                   3");
-            ((XmlElement)Creditor).SetAttribute("code", "3");
+            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
+            ((XmlElement)Creditor).SetAttribute("code", cr);
+            ((XmlElement)Creditor).SetAttribute("number", "3");
             BankStatementLine.AppendChild(Creditor);
 
             XmlNode TransactionNumber = doc.CreateElement("TransactionNumber");
@@ -766,8 +878,30 @@ namespace ExcelToXML.Controllers
 
             return GLEntryNode;
         }
-        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet)
+
+        public string getCreditorCode(string code, string identityNymber)
         {
+            // CCO -> კრედიტორი 3
+            // COM -> კრედიტორი 4
+            // სვა შემთხვევაში select vatnumber,crdnr,debnr from cicmpy where VatNumber = '102189454'(მიმღების საიდენთიფიკაციო კოდი)
+            // რომელიც null არაა იმით შეივსება
+            if (code == "COM")
+            {
+                return "4";
+            }
+            if (code == "CCO")
+            {
+                return "3";
+            }
+
+            var cr = getCreditorFromDB(identityNymber);
+
+            return cr;
+
+        }
+        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber)
+        {
+            
             //COM დაჯამდება, რეფერენსები იქნება საერთო
             XmlNode FinEntryLine = doc.CreateElement("FinEntryLine");
             ((XmlElement)FinEntryLine).SetAttribute("number", (i-13).ToString());
@@ -838,12 +972,10 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
 
-            // CCO -> კრედიტორი 3
-            // COM -> კრედიტორი 4
-            // სვა შემთხვევაში select vatnumber,crdnr,debnr from cicmpy where VatNumber = '102189454'(მიმღების საიდენთიფიკაციო კოდი)
-            // რომელიც null არაა იმით შეივსება
+           
+            var creditorCode = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
             XmlNode Creditor = doc.CreateElement("Creditor");
-            ((XmlElement)Creditor).SetAttribute("code", "                   3");
+            ((XmlElement)Creditor).SetAttribute("code", creditorCode);
             ((XmlElement)Creditor).SetAttribute("number", "     3");
             ((XmlElement)Creditor).SetAttribute("type", "S");
 
@@ -878,18 +1010,18 @@ namespace ExcelToXML.Controllers
 
             XmlNode FinEntryLineAmountCurrency = doc.CreateElement("Currency");
             //მე-8 ხაზიდან
-            ((XmlElement)FinEntryLineAmountCurrency).SetAttribute("code", "  GEL");
+            ((XmlElement)FinEntryLineAmountCurrency).SetAttribute("code", worksheet.Cells[8, 3].Value.ToString());
             FinEntryLineAmount.AppendChild(FinEntryLineAmountCurrency);
 
             //დებეტის ველიდან
             
             XmlNode Debit = doc.CreateElement("Debit");
-            Debit.AppendChild(doc.CreateTextNode("0"));
+            Debit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 4].Value.ToString()));
             FinEntryLineAmount.AppendChild(Debit);
 
             //კრედიტის ველიდან
             XmlNode Credit = doc.CreateElement("Credit");
-            Credit.AppendChild(doc.CreateTextNode("0"));
+            Credit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 5].Value.ToString()));
             FinEntryLineAmount.AppendChild(Credit);
 
             XmlNode VAT = doc.CreateElement("VAT");
@@ -1039,12 +1171,15 @@ namespace ExcelToXML.Controllers
 
             XmlNode InvoiceNumber = doc.CreateElement("InvoiceNumber");
             //select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
-            InvoiceNumber.AppendChild(doc.CreateTextNode("11207815"));
+
+            InvoiceNumber.AppendChild(doc.CreateTextNode(invoiceNumber));
             Payment.AppendChild(InvoiceNumber);
 
             XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
             //new Guid
-            BankTransactionID.AppendChild(doc.CreateTextNode("{5E6C28FB-A64E-4508-9F2F-476556B6FF29}"));
+            var newId = String.Format("{{0}}", Guid.NewGuid().ToString());
+
+            BankTransactionID.AppendChild(doc.CreateTextNode(newId));
             Payment.AppendChild(BankTransactionID);
 
 
