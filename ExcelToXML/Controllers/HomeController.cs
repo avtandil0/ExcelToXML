@@ -298,26 +298,6 @@ namespace ExcelToXML.Controllers
 
                 var invoiceNumber = getInvoiceNumber();
 
-                for (int i = 14; i <= rowLength; i++)
-                {
-                    var j = i;
-                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
-                    //{
-                    //    if (comIndex == 0)
-                    //    {
-                    //        comIndex = i;
-                    //    }
-                    //    j = comIndex;
-                    //}
-                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber);
-
-                    GLEntryNode.AppendChild(FinEntryLine);
-                }
-
-                var PaymentTerms = getPaymentTerms(doc);
-                GLEntryNode.AppendChild(PaymentTerms);
-                
-                
                 XmlNode BankStatement = doc.CreateElement("BankStatement");
                 ((XmlElement)BankStatement).SetAttribute("number", "24020023");
 
@@ -329,12 +309,30 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLOffset).SetAttribute("code", "   129000");
                 BankStatement.AppendChild(GLOffset);
 
+
                 for (int i = 14; i <= rowLength; i++)
                 {
-                    var BankStatementLine = getBankStatement(i,doc, workSheet);
+                    var j = i;
+                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
+                    //{
+                    //    if (comIndex == 0)
+                    //    {
+                    //        comIndex = i;
+                    //    }
+                    //    j = comIndex;
+                    //}
+                    var commonId = Guid.NewGuid();
+                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber, commonId);
+                    GLEntryNode.AppendChild(FinEntryLine);
+
+                    var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
                     BankStatement.AppendChild(BankStatementLine);
-                    
                 }
+
+                var PaymentTerms = getPaymentTerms(doc);
+                GLEntryNode.AppendChild(PaymentTerms);
+                
+                
 
                 GLEntryNode.AppendChild(BankStatement);
 
@@ -363,7 +361,7 @@ namespace ExcelToXML.Controllers
 
             return "311010";
         }
-        public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet)
+        public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet, Guid commonId)
         {
           
 
@@ -375,7 +373,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("entry", "24020023");
             ((XmlElement)BankStatementLine).SetAttribute("lineNo", (i-13).ToString());
             //საერთო paymant banktransactionId
-            ((XmlElement)BankStatementLine).SetAttribute("ID", "{5E6C28FB-A64E-4508-9F2F-476556B6FF29}");
+            ((XmlElement)BankStatementLine).SetAttribute("ID", String.Format("{{0}}", commonId.ToString()));
             ((XmlElement)BankStatementLine).SetAttribute("statementType", "B");
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
@@ -899,7 +897,7 @@ namespace ExcelToXML.Controllers
             return cr;
 
         }
-        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber)
+        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId)
         {
             
             //COM დაჯამდება, რეფერენსები იქნება საერთო
@@ -1176,10 +1174,9 @@ namespace ExcelToXML.Controllers
             Payment.AppendChild(InvoiceNumber);
 
             XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
-            //new Guid
-            var newId = String.Format("{{0}}", Guid.NewGuid().ToString());
+            //new common Guid
 
-            BankTransactionID.AppendChild(doc.CreateTextNode(newId));
+            BankTransactionID.AppendChild(doc.CreateTextNode(String.Format("{{0}}", commonId.ToString())));
             Payment.AppendChild(BankTransactionID);
 
 
