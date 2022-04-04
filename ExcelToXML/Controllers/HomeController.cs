@@ -294,7 +294,7 @@ namespace ExcelToXML.Controllers
 
                 var rowLength = workSheet.Dimension.End.Row;
 
-                var comIndex = 0;
+               
 
                 var invoiceNumber = getInvoiceNumber();
 
@@ -309,18 +309,22 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLOffset).SetAttribute("code", "   129000");
                 BankStatement.AppendChild(GLOffset);
 
-
+                var comIndex = 0;
                 for (int i = 14; i <= rowLength; i++)
                 {
                     var j = i;
-                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
-                    //{
-                    //    if (comIndex == 0)
-                    //    {
-                    //        comIndex = i;
-                    //    }
-                    //    j = comIndex;
-                    //}
+                    if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
+                    {
+                        if (comIndex == 0)
+                        {
+                            comIndex = i;
+                        }
+                        else
+                        {
+                           // worksheet.Cells[i, 4].Value?.ToString())
+                           //doc.SelectSingleNode()
+                        }
+                    }
                     var commonId = Guid.NewGuid();
                     var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber, commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
@@ -373,7 +377,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("entry", "24020023");
             ((XmlElement)BankStatementLine).SetAttribute("lineNo", (i-13).ToString());
             //საერთო paymant banktransactionId
-            ((XmlElement)BankStatementLine).SetAttribute("ID", String.Format("{{0}}", commonId.ToString()));
+            ((XmlElement)BankStatementLine).SetAttribute("ID", String.Format("{{{0}}}", commonId.ToString()));
             ((XmlElement)BankStatementLine).SetAttribute("statementType", "B");
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
@@ -1014,12 +1018,12 @@ namespace ExcelToXML.Controllers
             //დებეტის ველიდან
             
             XmlNode Debit = doc.CreateElement("Debit");
-            Debit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 4].Value.ToString()));
+            Debit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 4].Value?.ToString()));
             FinEntryLineAmount.AppendChild(Debit);
 
             //კრედიტის ველიდან
             XmlNode Credit = doc.CreateElement("Credit");
-            Credit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 5].Value.ToString()));
+            Credit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 5].Value?.ToString()));
             FinEntryLineAmount.AppendChild(Credit);
 
             XmlNode VAT = doc.CreateElement("VAT");
@@ -1176,7 +1180,7 @@ namespace ExcelToXML.Controllers
             XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
             //new common Guid
 
-            BankTransactionID.AppendChild(doc.CreateTextNode(String.Format("{{0}}", commonId.ToString())));
+            BankTransactionID.AppendChild(doc.CreateTextNode(String.Format("{{{0}}}", commonId.ToString())));
             Payment.AppendChild(BankTransactionID);
 
 
