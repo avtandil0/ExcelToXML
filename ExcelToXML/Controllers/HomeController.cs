@@ -284,14 +284,14 @@ namespace ExcelToXML.Controllers
                 doc.AppendChild(docNode);
                 XmlElement employeeDataNode = doc.CreateElement("eExact");
                 (employeeDataNode).SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-                (employeeDataNode).SetAttribute("xsi:noNamespaceSchemaLocation=", "eExact-Schema.xsd");
+                (employeeDataNode).SetAttribute("xsi:noNamespaceSchemaLocation", "eExact-Schema.xsd");
                 doc.AppendChild(employeeDataNode);
 
                 //GLEntries
                 XmlNode GLEntriesNode = doc.CreateElement("GLEntries");
                 doc.DocumentElement.AppendChild(GLEntriesNode);
 
-                var GLEntryNode = getGLEntryNode(doc);
+                var GLEntryNode = getGLEntryNode(doc, workSheet);
 
                 var rowLength = workSheet.Dimension.End.Row;
 
@@ -330,16 +330,16 @@ namespace ExcelToXML.Controllers
                     var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber, commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
 
-                    var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
-                    BankStatement.AppendChild(BankStatementLine);
+                    // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
+                    // BankStatement.AppendChild(BankStatementLine);
                 }
 
-                var PaymentTerms = getPaymentTerms(doc);
-                GLEntryNode.AppendChild(PaymentTerms);
+                // var PaymentTerms = getPaymentTerms(doc);
+                // GLEntryNode.AppendChild(PaymentTerms);
                 
                 
 
-                GLEntryNode.AppendChild(BankStatement);
+                // GLEntryNode.AppendChild(BankStatement);
 
 
                 GLEntriesNode.AppendChild(GLEntryNode);
@@ -771,7 +771,7 @@ namespace ExcelToXML.Controllers
 
         }
 
-        public XmlNode getGLEntryNode(XmlDocument doc)
+        public XmlNode getGLEntryNode(XmlDocument doc,  ExcelWorksheet worksheet)
         {
 
 
@@ -781,11 +781,13 @@ namespace ExcelToXML.Controllers
             ((XmlElement)GLEntryNode).SetAttribute("status", "E");
 
             XmlNode Division = doc.CreateElement("Division");
-            Division.AppendChild(doc.CreateTextNode("150"));
+            ((XmlElement)Division).SetAttribute("code", "150");
             GLEntryNode.AppendChild(Division);
 
             XmlNode DocumentDate = doc.CreateElement("DocumentDate");
-            DocumentDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            var d = worksheet.Cells[14, 1].Value.ToString(); //პირველივე თარიღი
+            var dateFormated = DateTime.Parse(d).ToString("yyyy-MM-dd");
+            DocumentDate.AppendChild(doc.CreateTextNode(dateFormated));
             GLEntryNode.AppendChild(DocumentDate);
 
             XmlNode Journal = doc.CreateElement("Journal");
@@ -920,6 +922,10 @@ namespace ExcelToXML.Controllers
             XmlNode FinYear = doc.CreateElement("FinYear");
             ((XmlElement)FinYear).SetAttribute("number", DateTime.Parse(d).Year.ToString());
             FinEntryLine.AppendChild(FinYear);
+            
+            XmlNode FinPeriod = doc.CreateElement("FinPeriod");
+            ((XmlElement)FinPeriod).SetAttribute("number", DateTime.Parse(d).Month.ToString());
+            FinEntryLine.AppendChild(FinPeriod);
 
             var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString());
             
@@ -998,7 +1004,7 @@ namespace ExcelToXML.Controllers
             LastName.AppendChild(doc.CreateTextNode("&#1028;&#1029;&#1031;&#1107;&#1035;&#166;"));
             Resource.AppendChild(LastName);
 
-            XmlNode FirstName = doc.CreateElement("LastName");
+            XmlNode FirstName = doc.CreateElement("FirstName");
             FirstName.AppendChild(doc.CreateTextNode("`&#166;&#1031;&#1107;&#1026;"));
             Resource.AppendChild(FirstName);
 
@@ -1019,19 +1025,19 @@ namespace ExcelToXML.Controllers
             //დებეტის ველიდან
             
             XmlNode Debit = doc.CreateElement("Debit");
-            Debit.AppendChild(doc.CreateTextNode(String.IsNullOrEmpty(worksheet.Cells[i, 4].Value.ToString()) ? worksheet.Cells[i, 4].Value?.ToString() : "0"));
+            Debit.AppendChild(doc.CreateTextNode(!String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? worksheet.Cells[i, 4].Value?.ToString() : "0"));
             FinEntryLineAmount.AppendChild(Debit);
 
             //კრედიტის ველიდან
             XmlNode Credit = doc.CreateElement("Credit");
-            Credit.AppendChild(doc.CreateTextNode(String.IsNullOrEmpty(worksheet.Cells[i, 5].Value?.ToString())? worksheet.Cells[i, 5].Value?.ToString() : "0"));
+            Credit.AppendChild(doc.CreateTextNode(!String.IsNullOrEmpty(worksheet.Cells[i, 5].Value?.ToString())? worksheet.Cells[i, 5].Value?.ToString() : "0"));
             FinEntryLineAmount.AppendChild(Credit);
 
             XmlNode VAT = doc.CreateElement("VAT");
-            ((XmlElement)Resource).SetAttribute("code", "0");
-            ((XmlElement)Resource).SetAttribute("type", "B");
-            ((XmlElement)Resource).SetAttribute("vattype", "N");
-            ((XmlElement)Resource).SetAttribute("taxtype", "V");
+            ((XmlElement)VAT).SetAttribute("code", "0");
+            ((XmlElement)VAT).SetAttribute("type", "B");
+            ((XmlElement)VAT).SetAttribute("vattype", "N");
+            ((XmlElement)VAT).SetAttribute("taxtype", "V");
 
             XmlNode VATDescription = doc.CreateElement("Description");
             VATDescription.AppendChild(doc.CreateTextNode("VAT 0%"));
