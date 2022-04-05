@@ -284,6 +284,7 @@ namespace ExcelToXML.Controllers
                 doc.AppendChild(docNode);
                 XmlElement employeeDataNode = doc.CreateElement("eExact");
                 (employeeDataNode).SetAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+                (employeeDataNode).SetAttribute("xsi:noNamespaceSchemaLocation=", "eExact-Schema.xsd");
                 doc.AppendChild(employeeDataNode);
 
                 //GLEntries
@@ -808,7 +809,7 @@ namespace ExcelToXML.Controllers
 
 
             XmlNode GLPaymentInTransit = doc.CreateElement("GLPaymentInTransit");
-            ((XmlElement)GLPaymentInTransit).SetAttribute("code", "  121003");
+            ((XmlElement)GLPaymentInTransit).SetAttribute("code", "999001");
             ((XmlElement)GLPaymentInTransit).SetAttribute("type", "B");
             ((XmlElement)GLPaymentInTransit).SetAttribute("subtype", "B");
             ((XmlElement)GLPaymentInTransit).SetAttribute("side", "D");
@@ -832,10 +833,10 @@ namespace ExcelToXML.Controllers
             Costcenter.AppendChild(CostcenterDescription);
 
             XmlNode CostcenterGLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("code", "  121003");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("type", "B");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("subtype", "B");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("side", "D");
+            ((XmlElement)CostcenterGLAccount).SetAttribute("code", "719990");
+            ((XmlElement)CostcenterGLAccount).SetAttribute("type", "D");
+            ((XmlElement)CostcenterGLAccount).SetAttribute("subtype", "W");
+            ((XmlElement)CostcenterGLAccount).SetAttribute("side", "K");
 
             XmlNode CostcenterGLAccountGLDescription = doc.CreateElement("Description");
             CostcenterGLAccountGLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -844,10 +845,10 @@ namespace ExcelToXML.Controllers
             Costcenter.AppendChild(CostcenterGLAccount);
 
             XmlNode GLOffset = doc.CreateElement("GLOffset");
-            ((XmlElement)GLOffset).SetAttribute("code", "  121003");
-            ((XmlElement)GLOffset).SetAttribute("type", "B");
-            ((XmlElement)GLOffset).SetAttribute("subtype", "B");
-            ((XmlElement)GLOffset).SetAttribute("side", "D");
+            ((XmlElement)GLOffset).SetAttribute("code", "719990");
+            ((XmlElement)GLOffset).SetAttribute("type", "D");
+            ((XmlElement)GLOffset).SetAttribute("subtype", "W");
+            ((XmlElement)GLOffset).SetAttribute("side", "K");
 
             XmlNode GLOffsetDescription = doc.CreateElement("Description");
             GLOffsetDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -925,7 +926,7 @@ namespace ExcelToXML.Controllers
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "B");
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
 
             XmlNode FinEntryLineGLDescription = doc.CreateElement("Description");
@@ -949,9 +950,9 @@ namespace ExcelToXML.Controllers
 
             XmlNode FinEntryLineCostcenterGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("code", "   719990");
-            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("type", "B");
-            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("subtype", "B");
-            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("side", "D");
+            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("type", "D");
+            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("subtype", "W");
+            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("side", "K");
 
             XmlNode FinEntryLineCostcenterGLAccountGLDescription = doc.CreateElement("Description");
             FinEntryLineCostcenterGLAccountGLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -960,10 +961,10 @@ namespace ExcelToXML.Controllers
             FinEntryLineCostcenter.AppendChild(FinEntryLineCostcenterGLAccount);
 
             XmlNode FinEntryLineGLOffset = doc.CreateElement("GLOffset");
-            ((XmlElement)FinEntryLineGLOffset).SetAttribute("code", "  121003");
-            ((XmlElement)FinEntryLineGLOffset).SetAttribute("type", "B");
-            ((XmlElement)FinEntryLineGLOffset).SetAttribute("subtype", "B");
-            ((XmlElement)FinEntryLineGLOffset).SetAttribute("side", "D");
+            ((XmlElement)FinEntryLineGLOffset).SetAttribute("code", " 719990");
+            ((XmlElement)FinEntryLineGLOffset).SetAttribute("type", "D");
+            ((XmlElement)FinEntryLineGLOffset).SetAttribute("subtype", "W");
+            ((XmlElement)FinEntryLineGLOffset).SetAttribute("side", "K");
 
             XmlNode FinEntryLineGLOffsetDescription = doc.CreateElement("Description");
             FinEntryLineGLOffsetDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -1018,12 +1019,12 @@ namespace ExcelToXML.Controllers
             //დებეტის ველიდან
             
             XmlNode Debit = doc.CreateElement("Debit");
-            Debit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 4].Value?.ToString()));
+            Debit.AppendChild(doc.CreateTextNode(String.IsNullOrEmpty(worksheet.Cells[i, 4].Value.ToString()) ? worksheet.Cells[i, 4].Value?.ToString() : "0"));
             FinEntryLineAmount.AppendChild(Debit);
 
             //კრედიტის ველიდან
             XmlNode Credit = doc.CreateElement("Credit");
-            Credit.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 5].Value?.ToString()));
+            Credit.AppendChild(doc.CreateTextNode(String.IsNullOrEmpty(worksheet.Cells[i, 5].Value?.ToString())? worksheet.Cells[i, 5].Value?.ToString() : "0"));
             FinEntryLineAmount.AppendChild(Credit);
 
             XmlNode VAT = doc.CreateElement("VAT");
