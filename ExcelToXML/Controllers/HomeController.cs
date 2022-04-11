@@ -83,9 +83,27 @@ namespace ExcelToXML.Controllers
                 var sheet = package.Workbook.Worksheets.FirstOrDefault();
 
                 ExcelWorksheet workSheet = package.Workbook.Worksheets.FirstOrDefault();
-
+                
                 int totalRows = workSheet.Dimension.Rows;
                 var rowLength = workSheet.Dimension.End.Row;
+
+                List<string> identifiers = new List<string>();
+
+                for (int i = 14; i <= rowLength; i++)
+                {
+                    if (workSheet.Cells[i, 16].Value == null)
+                    {
+                        break;
+                    }
+
+                    identifiers.Add(workSheet.Cells[i, 16].Value.ToString());
+                }
+
+
+
+                var nonExist = getNonExistIdentificators(identifiers);
+
+
 
 
                 var entryNumber = getEntryNumber();
@@ -110,6 +128,67 @@ namespace ExcelToXML.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        public List<string> getNonExistIdentificators(List<string> names)
+        {
+
+            //string connectionString =
+            // "Data Source=(local);Initial Catalog=Northwind;"
+            // + "Integrated Security=true";
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+            var dagbknr = "202";
+            string entryNumber = "";
+            var list = String.Join(", ", names.ToArray());
+
+            string queryString =
+                "SELECT * FROM cicmpy WHERE VATNUMBER in (11, 10)";
+            //   + "where dagbknr = @dagbknr ";
+
+        
+              
+
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@dagbknr", dagbknr);
+
+                SqlCommand command1 = new SqlCommand(queryString1, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        entryNumber = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                    SqlDataReader reader1 = command1.ExecuteReader();
+                    while (reader1.Read())
+                    {
+                        entryNumber = reader1[1].ToString();
+                    }
+                    reader1.Close();
+                }
+                catch (Exception ex)
+                {
+                    //Console.WriteLine(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+            return entryNumber;
+        }
 
         public string getEntryNumber()
         {
@@ -311,23 +390,29 @@ namespace ExcelToXML.Controllers
                 BankStatement.AppendChild(GLOffset);
 
                 var comIndex = 0;
+
+                
                 for (int i = 14; i <= rowLength; i++)
                 {
-                    var j = i;
-                    if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
+                    if (workSheet.Cells[i, 1].Value == null)
                     {
-                        if (comIndex == 0)
-                        {
-                            comIndex = i;
-                        }
-                        else
-                        {
-                           // worksheet.Cells[i, 4].Value?.ToString())
-                           //doc.SelectSingleNode()
-                        }
+                        break;
                     }
+                    //var j = i;467
+                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
+                    //{
+                    //    if (comIndex == 0)
+                    //    {
+                    //        comIndex = i;
+                    //    }
+                    //    else
+                    //    {
+                    //       // worksheet.Cells[i, 4].Value?.ToString())
+                    //       //doc.SelectSingleNode()
+                    //    }
+                    //}
                     var commonId = Guid.NewGuid();
-                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invoiceNumber, commonId);
+                    var FinEntryLine = getFinEntryLine(i, doc, workSheet, invoiceNumber, commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
 
                     // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
