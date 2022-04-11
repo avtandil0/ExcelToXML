@@ -252,6 +252,10 @@ namespace ExcelToXML.Controllers
 
         public string getInvoiceNumber()
         {
+            
+            //+1
+            
+            //741011 W K D
 
 
             string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
@@ -291,8 +295,8 @@ namespace ExcelToXML.Controllers
 
             if(invoiceNumber != "")
             {
-                var nextInvoiceNumber = Int16.Parse(invoiceNumber);
-                nextInvoiceNumber++;
+                var nextInvoiceNumber = Int32.Parse(invoiceNumber);
+                // nextInvoiceNumber++;
                 return nextInvoiceNumber.ToString();
             }
             return "80200001";
@@ -390,8 +394,7 @@ namespace ExcelToXML.Controllers
                 BankStatement.AppendChild(GLOffset);
 
                 var comIndex = 0;
-
-                
+                var invNumber = Int32.Parse(invoiceNumber);
                 for (int i = 14; i <= rowLength; i++)
                 {
                     if (workSheet.Cells[i, 1].Value == null)
@@ -412,7 +415,8 @@ namespace ExcelToXML.Controllers
                     //    }
                     //}
                     var commonId = Guid.NewGuid();
-                    var FinEntryLine = getFinEntryLine(i, doc, workSheet, invoiceNumber, commonId);
+                    invNumber++;
+                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invNumber.ToString(), commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
 
                     // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
@@ -449,6 +453,7 @@ namespace ExcelToXML.Controllers
                 return "129000";
             }
 
+            //თუ დებიტორი მაშინ  return '141010'
             return "311010";
         }
         public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet, Guid commonId)
@@ -490,9 +495,19 @@ namespace ExcelToXML.Controllers
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
-            ((XmlElement)GLAccount).SetAttribute("type", "B");
-            ((XmlElement)GLAccount).SetAttribute("subtype", "B");
-            ((XmlElement)GLAccount).SetAttribute("side", "D");
+            if (gLAccountCode == "741011")
+            {
+                ((XmlElement)GLAccount).SetAttribute("type", "W");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "K");
+                ((XmlElement)GLAccount).SetAttribute("side", "D");
+            }
+            else
+            {
+                ((XmlElement)GLAccount).SetAttribute("type", "B");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "B");
+                ((XmlElement)GLAccount).SetAttribute("side", "D");
+            }
+           
 
             XmlNode GLDescription = doc.CreateElement("Description");
             GLDescription.AppendChild(doc.CreateTextNode("&#1031;^&#1036;^&#1110;&#1027;&#164;&#166;&#1106;&#1029;&#1031; `^&#1108;&#1026;&#1107; GEL 3406000029"));
@@ -570,7 +585,7 @@ namespace ExcelToXML.Controllers
             XmlNode Creditor = doc.CreateElement("Creditor");
             var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
             ((XmlElement)Creditor).SetAttribute("code", cr);
-            ((XmlElement)Creditor).SetAttribute("number", "3");
+            ((XmlElement)Creditor).SetAttribute("number", cr);
             BankStatementLine.AppendChild(Creditor);
 
             XmlNode TransactionNumber = doc.CreateElement("TransactionNumber");
@@ -1016,9 +1031,18 @@ namespace ExcelToXML.Controllers
             
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            if (gLAccountCode == "741011")
+            {
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "K");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            }
+            else
+            {
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            }
 
             XmlNode FinEntryLineGLDescription = doc.CreateElement("Description");
             FinEntryLineGLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -1070,7 +1094,7 @@ namespace ExcelToXML.Controllers
             var creditorCode = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
             XmlNode Creditor = doc.CreateElement("Creditor");
             ((XmlElement)Creditor).SetAttribute("code", creditorCode);
-            ((XmlElement)Creditor).SetAttribute("number", "     3");
+            ((XmlElement)Creditor).SetAttribute("number", creditorCode);
             ((XmlElement)Creditor).SetAttribute("type", "S");
 
             XmlNode CreditorName = doc.CreateElement("Name");
@@ -1292,7 +1316,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)FinReferences).SetAttribute("TransactionOrigin", "P");
 
             XmlNode UniquePostingNumber = doc.CreateElement("UniquePostingNumber");
-            UniquePostingNumber.AppendChild(doc.CreateTextNode("2022-02-03"));
+            UniquePostingNumber.AppendChild(doc.CreateTextNode("0"));
             FinReferences.AppendChild(UniquePostingNumber);
 
             XmlNode YourRef = doc.CreateElement("YourRef");
