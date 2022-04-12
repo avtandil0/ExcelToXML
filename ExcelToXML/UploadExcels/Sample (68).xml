@@ -1,0 +1,629 @@
+﻿<eExact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="eExact-Schema.xsd">
+  <GLEntries>
+    <GLEntry entry="24020023" status="E">
+      <Division code="150" />
+      <DocumentDate>2022-02-03</DocumentDate>
+      <Journal code="202" type="B">
+        <Description>GEL 3406000029</Description>
+        <GLAccount code="  121003" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <GLPaymentInTransit code="999001" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLPaymentInTransit>
+      </Journal>
+      <Costcenter code="001CC001">
+        <Description>Default cost center</Description>
+        <GLAccount code="719990" type="D" subtype="W" side="K">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <GLOffset code="719990" type="D" subtype="W" side="K">
+          <Description>GEL 3406000029</Description>
+        </GLOffset>
+      </Costcenter>
+      <Amount>
+        <Currency code="  GEL" />
+        <Value>0</Value>
+      </Amount>
+      <ForeignAmount>
+        <Currency code="  GEL" />
+        <Value>0</Value>
+      </ForeignAmount>
+      <FinEntryLine number="1" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="129000" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>ვალუტის გაცვლითი ოპერაცია. კურსი:3.002 კონტრთანხა: USD15,000.. კონვერტაცია </Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="3" number="3" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>0</Debit>
+          <Credit>45030</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200002</InvoiceNumber>
+          <BankTransactionID>{62635ff2-1934-45d2-bc61-933a4532d0dc}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="2" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>ბიომრავალფეროვნების, ჰიდროლოგიური გარემოს და კლიმატის კვლევის ჩასატარებლად. ხელშეკრულება 460, მიღებაჩაბარების აქტი 83376. CC103 შპს ესდიესსი GE18BG0000000365814743GEL სს "საქართველოს ბანკი" BAGAGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   899" number="   899" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>11339.32</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200003</InvoiceNumber>
+          <BankTransactionID>{c49cebf2-337e-422d-b794-66412135e678}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="3" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>საქართველოს ბიზნეს ასოციაციის საწევროს წლიური გადასახადი, ინვოისი 22/10 საქართველოს ბიზნეს ასოციაცია - ააიპ GE84TB7887336080100001 სს "თიბისი  ბანკი" TBCBGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   899" number="   899" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>30286</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200004</InvoiceNumber>
+          <BankTransactionID>{44450432-aee9-43de-bd4d-4d36324fb18d}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="4" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="741011" type="W" subtype="K" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>გადარიცხვის საკომისიო: საქართველოს ბიზნეს ასოციაციის საწევროს წლიური გადასახადი, ინვოისი 22/10 საქართველოს ბიზნეს ასოციაცია - ააიპ GE84TB7887336080100001 სს "თიბისი  ბანკი" TBCBGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="4" number="4" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>15.14</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200005</InvoiceNumber>
+          <BankTransactionID>{cb9f8aa1-935b-4eff-b473-14a69d6f2856}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="5" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>სამსახურებრივი ბარათი 83103 ჟუჩკოვი არტიომ GE22BG0000000101232912GEL სს "საქართველოს ბანკი" BAGAGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   483" number="   483" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>862</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200006</InvoiceNumber>
+          <BankTransactionID>{872319af-bcb4-4538-813f-4ec70e9de8fa}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="6" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>კვების პროდუქტებისთვის, საგადასახადო აფ ეა74 0704911, ეა73 6624457, ეა73 4712515, ეა73 3019311, ეა73 1250135, ეა73 1250133, ეა72 8191700 შპს გსქ კულა GE02TB7076036020100012 სს "თიბისი  ბანკი" TBCBGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   932" number="   932" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>9497.6</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200007</InvoiceNumber>
+          <BankTransactionID>{b47b4bb8-ccc0-418b-b96f-c6cdb4f54dbb}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+      <FinEntryLine number="7" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="741011" type="W" subtype="K" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>გადარიცხვის საკომისიო: კვების პროდუქტებისთვის, საგადასახადო აფ ეა74 0704911, ეა73 6624457, ეა73 4712515, ეა73 3019311, ეა73 1250135, ეა73 1250133, ეა72 8191700 შპს გსქ კულა GE02TB7076036020100012 სს "თიბისი  ბანკი" TBCBGE22</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="4" number="4" type="S">
+          <Name>&amp;#1026;&amp;#1110;&amp;#166;~&amp;#1107;&amp;#1111;&amp;#1029;&amp;#1110;&amp;#1107; `^&amp;#1108;&amp;#1026;&amp;#1107;-&amp;#1031;^&amp;#1106;</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>4.75</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+        <VATTransaction code="0">
+          <VATAmount>0</VATAmount>
+          <VATBaseAmount>0</VATBaseAmount>
+          <VATBaseAmountFC>0</VATBaseAmountFC>
+        </VATTransaction>
+        <Payment>
+          <PaymentMethod code="B" />
+          <PaymentCondition code="00">
+            <Description code="B" />
+          </PaymentCondition>
+          <CSSDYesNo>K</CSSDYesNo>
+          <CSSDAmount1>0</CSSDAmount1>
+          <CSSDAmount2>0</CSSDAmount2>
+          <InvoiceNumber>80200008</InvoiceNumber>
+          <BankTransactionID>{e5be5534-566a-49cf-ae8f-0725be9a330d}</BankTransactionID>
+        </Payment>
+        <Delivery>
+          <Date>2022-02-03</Date>
+        </Delivery>
+        <FinReferences TransactionOrigin="P">
+          <UniquePostingNumber>0</UniquePostingNumber>
+          <YourRef></YourRef>
+          <DocumentDate>2022-02-03</DocumentDate>
+        </FinReferences>
+        <Discount>
+          <Percentage>0</Percentage>
+        </Discount>
+        <FreeFields>
+          <FreeTexts>
+            <FreeText number="3">00</FreeText>
+          </FreeTexts>
+        </FreeFields>
+      </FinEntryLine>
+    </GLEntry>
+  </GLEntries>
+</eExact>

@@ -38,9 +38,131 @@ namespace ExcelToXML.Controllers
             return View();
         }
 
+        public string transformFromUnicode(string str)
+        {
+            if (String.IsNullOrEmpty(str))
+            {
+                return "";
+            }
+
+            var tmp = "";
+            for (var i = 0; i < str.Length; i++)
+            {
+                switch ((int)str[i])
+                {
+                    case 4304:
+                        tmp += (char)(94);
+                        break;
+                    case 4305:
+                        tmp += (char)(96);
+                        break;
+                    case 4306:
+                        tmp += (char)(124);
+                        break;
+                    case 4307:
+                        tmp += (char)(126);
+                        break;
+                    case 4308:
+                        tmp += (char)(166);
+                        break;
+                    case 4309:
+                        tmp += (char)(164);
+                        break;
+                    case 4310:
+                        tmp += (char)(1169);
+                        break;
+                    case 4311:
+                        tmp += (char)(1027);
+                        break;
+                    case 4312:
+                        tmp += (char)(1107);
+                        break;
+                    case 4313:
+                        tmp += (char)(1026);
+                        break;
+                    case 4314:
+                        tmp += (char)(1106);
+                        break;
+                    case 4315:
+                        tmp += (char)(1028);
+                        break;
+                    case 4316:
+                        tmp += (char)(1108);
+                        break;
+                    case 4317:
+                        tmp += (char)(1029);
+                        break;
+                    case 4318:
+                        tmp += (char)(1109);
+                        break;
+                    case 4319:
+                        tmp += (char)(1030);
+                        break;
+                    case 4320:
+                        tmp += (char)(1110);
+                        break;
+                    case 4321:
+                        tmp += (char)(1031);
+                        break;
+                    case 4322:
+                        tmp += (char)(1111);
+                        break;
+                    case 4323:
+                        tmp += (char)(1032);
+                        break;
+                    case 4324:
+                        tmp += (char)(1112);
+                        break;
+                    case 4325:
+                        tmp += (char)(1036);
+                        break;
+                    case 4326:
+                        tmp += (char)(1116);
+                        break;
+                    case 4327:
+                        tmp += (char)(1033);
+                        break;
+                    case 4328:
+                        tmp += (char)(1113);
+                        break;
+                    case 4329:
+                        tmp += (char)(1034);
+                        break;
+                    case 4330:
+                        tmp += (char)(1114);
+                        break;
+                    case 4331:
+                        tmp += (char)(1035);
+                        break;
+                    case 4332:
+                        tmp += (char)(1115);
+                        break;
+                    case 4333:
+                        tmp += (char)(1038);
+                        break;
+                    case 4334:
+                        tmp += (char)(1118);
+                        break;
+                    case 4335:
+                        tmp += (char)(1039);
+                        break;
+                    case 4336:
+                        tmp += (char)(1119);
+                        break;
+                    default:
+                        tmp += str[i];
+                        break;
+
+                }
+            }
+
+            return tmp;
+        }
+
         [HttpPost("FileUpload")]
         public async Task<IActionResult> FileUpload(List<IFormFile> files)
         {
+
             if (files.Count == 0)
             {
                 ViewBag.error = "ატვირთეთ ფაილი ! ";
@@ -101,7 +223,7 @@ namespace ExcelToXML.Controllers
                 int totalRows = workSheet.Dimension.Rows;
                 var rowLength = workSheet.Dimension.End.Row;
 
-                List<string> identifiers = new List<string>();
+                List<KeyValuePair<string, string>> identifiers = new List<KeyValuePair<string, string>>();
 
                 for (int i = 14; i <= rowLength; i++)
                 {
@@ -110,16 +232,22 @@ namespace ExcelToXML.Controllers
                         break;
                     }
 
-                    identifiers.Add(workSheet.Cells[i, 16].Value.ToString());
+                    identifiers.Add(new KeyValuePair<string, string>(workSheet.Cells[i, 16].Value.ToString(), workSheet.Cells[i, 15].Value.ToString()));
                 }
 
 
 
-                var nonExist = getNonExistIdentificators(identifiers);
+                var nonExist = getNonExistIdentificators(identifiers.Select(r => r.Key).ToList());
 
-                if (!String.IsNullOrEmpty(nonExist))
+                if (nonExist.Count != 0)
                 {
-                    ViewBag.nonExists = nonExist;
+                    var text = "";
+                    foreach (var item in nonExist)
+                    {
+                        var name = identifiers.Where(r => r.Key == item).FirstOrDefault().Value;
+                        text += String.Format(" {0} - {1}; ", item, name);
+                    }
+                    ViewBag.nonExists = text;
 
                     return View("Index");
                 }
@@ -148,7 +276,7 @@ namespace ExcelToXML.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public string getNonExistIdentificators(List<string> names)
+        public List<string> getNonExistIdentificators(List<string> names)
         {
 
             //string connectionString =
@@ -160,7 +288,7 @@ namespace ExcelToXML.Controllers
 
 
             var dagbknr = "202";
-            string nonExists = "";
+            List<string> nonExists = new List<string>();
             var list = String.Join(", ", names.ToArray());
 
 
@@ -205,7 +333,7 @@ namespace ExcelToXML.Controllers
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        nonExists += reader[0].ToString() + "; ";
+                        nonExists.Add(reader[0].ToString());
                     }
 
                     reader.Close();
@@ -335,7 +463,7 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public string getCreditorFromDB(string identityNumber)
+        public (string creditor, bool debnr) getCreditorFromDB(string identityNumber)
         {
 
             string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
@@ -379,9 +507,9 @@ namespace ExcelToXML.Controllers
 
             if(crdnr != "")
             {
-                return crdnr;
+                return (crdnr, false);
             }
-            return debnr;
+            return (debnr, true);
         }
 
         public FileStreamResult importToXML(ExcelWorksheet workSheet)
@@ -474,7 +602,7 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public string getGLAccountInEntryLine(string code)
+        public string getGLAccountInEntryLine(string code, bool debnr)
         {
 
    //         reknr bal_vw  omzrek debcrd
@@ -492,12 +620,30 @@ namespace ExcelToXML.Controllers
             {
                 return "129000";
             }
+            if(debnr == true)
+            {
+                return "141010";
+            }
 
             //თუ დებიტორი მაშინ  return '141010'
             return "311010";
 
             //cicmpy debnr is not null => '141010'
         }
+
+        public string getUnicode(string text)
+        {
+            var res = transformFromUnicode(text);
+
+            return res;
+        }
+
+        public string getDesciption(string text)
+        {
+            var cc = getUnicode(text);
+            return cc.Substring(0, 60);
+        }
+
         public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet, Guid commonId)
         {
           
@@ -515,7 +661,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
             XmlNode Description = doc.CreateElement("Description");
-            Description.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 6].Value.ToString()));
+            Description.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString())));
             BankStatementLine.AppendChild(Description);
 
             var d = worksheet.Cells[i, 1].Value.ToString();
@@ -533,23 +679,46 @@ namespace ExcelToXML.Controllers
             StatementDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(StatementDate);
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString());
+            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
+
+
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr.debnr);
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
+
+
+            //129000   B C   D
+            //141010   B D   D
+            //311010   B C   C
+            //741011   W K   D
+
             if (gLAccountCode == "741011")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "W");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "K");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
-            else
+            if (gLAccountCode == "311010")
+            {
+                ((XmlElement)GLAccount).SetAttribute("type", "B");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "C");
+                ((XmlElement)GLAccount).SetAttribute("side", "C");
+            }
+            if (gLAccountCode == "141010")
+            {
+                ((XmlElement)GLAccount).SetAttribute("type", "B");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "D");
+                ((XmlElement)GLAccount).SetAttribute("side", "D");
+            }
+            if (gLAccountCode == "129000")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
-           
+
+
 
             XmlNode GLDescription = doc.CreateElement("Description");
             GLDescription.AppendChild(doc.CreateTextNode("&#1031;^&#1036;^&#1110;&#1027;&#164;&#166;&#1106;&#1029;&#1031; `^&#1108;&#1026;&#1107; GEL 3406000029"));
@@ -625,9 +794,9 @@ namespace ExcelToXML.Controllers
             BankStatementLine.AppendChild(BankAccount);
 
             XmlNode Creditor = doc.CreateElement("Creditor");
-            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
-            ((XmlElement)Creditor).SetAttribute("code", cr);
-            ((XmlElement)Creditor).SetAttribute("number", cr);
+
+            ((XmlElement)Creditor).SetAttribute("code", cr.creditor);
+            ((XmlElement)Creditor).SetAttribute("number", cr.creditor);
             BankStatementLine.AppendChild(Creditor);
 
             XmlNode TransactionNumber = doc.CreateElement("TransactionNumber");
@@ -1026,7 +1195,7 @@ namespace ExcelToXML.Controllers
             return GLEntryNode;
         }
 
-        public string getCreditorCode(string code, string identityNymber)
+        public (string creditor, bool debnr) getCreditorCode(string code, string identityNymber)
         {
             // CCO -> კრედიტორი 3
             // COM -> კრედიტორი 4
@@ -1034,16 +1203,16 @@ namespace ExcelToXML.Controllers
             // რომელიც null არაა იმით შეივსება
             if (code == "COM")
             {
-                return "4";
+                return ("4", false);
             }
             if (code == "CCO")
             {
-                return "3";
+                return ("3", false);
             }
 
-            var cr = getCreditorFromDB(identityNymber);
+            var result = getCreditorFromDB(identityNymber);
 
-            return cr;
+            return result;
 
         }
         public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId)
@@ -1069,7 +1238,10 @@ namespace ExcelToXML.Controllers
             ((XmlElement)FinPeriod).SetAttribute("number", DateTime.Parse(d).Month.ToString());
             FinEntryLine.AppendChild(FinPeriod);
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString());
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
+
+
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes.debnr);
             
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
@@ -1079,10 +1251,22 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "K");
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
             }
-            else
+            if (gLAccountCode == "311010")
             {
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
+            }
+            if (gLAccountCode == "141010")
+            {
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "D");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            }
+            if (gLAccountCode == "129000")
+            {
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
             }
 
@@ -1093,7 +1277,7 @@ namespace ExcelToXML.Controllers
 
 
             XmlNode FinEntryLineDescription = doc.CreateElement("Description");
-            FinEntryLineDescription.AppendChild(doc.CreateTextNode(worksheet.Cells[i, 6].Value.ToString()));
+            FinEntryLineDescription.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString())));
             FinEntryLine.AppendChild(FinEntryLineDescription);
 
 
@@ -1133,10 +1317,9 @@ namespace ExcelToXML.Controllers
             //-----------------------------
 
            
-            var creditorCode = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
             XmlNode Creditor = doc.CreateElement("Creditor");
-            ((XmlElement)Creditor).SetAttribute("code", creditorCode);
-            ((XmlElement)Creditor).SetAttribute("number", creditorCode);
+            ((XmlElement)Creditor).SetAttribute("code", creditorRes.creditor);
+            ((XmlElement)Creditor).SetAttribute("number", creditorRes.creditor);
             ((XmlElement)Creditor).SetAttribute("type", "S");
 
             XmlNode CreditorName = doc.CreateElement("Name");
