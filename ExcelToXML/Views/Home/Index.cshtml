@@ -3,22 +3,37 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-
+    <h5 >XML-ში კონვერტაციისთვის ატვირთეთ ექსელის ფაილი</h5>
 </div>
-<div style="display:flex; justify-content: center;">
-    <form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Index">
+<div style="display:flex; justify-content: center;margin-top:25px;">
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="FileUpload">
         <div style="display: flex">
             <div>
                 @*<input type="file" name="files" multiple />*@
                 <div class="mb-3">
-                    <input style="width:500px" class="form-control" type="file" name="files" multiple id="formFile">
+                    <input style="width:500px" class="form-control"  type="file" name="files" multiple id="formFile">
                 </div>
             </div>
             <div style="margin-left: 15px;">
-                <input class="btn btn-primary" type="submit" value="Convert To XML" />
+                <input class="btn btn-primary" type="submit" value="კონვერტაცია" />
             </div>
         </div>
+       
+
+
 
     </form>
+</div>
+
+<div class="text-center">
+    @if (!String.IsNullOrEmpty(@ViewBag.nonExists))
+    {
+        <div style="color: red">
+            <h6>ვერ მოიძებნა [ @ViewBag.nonExists ]</h6>
+        </div>
+    }
+    <div style="color: red">
+        <h5>@ViewBag.error </h5>
+    </div>
+
 </div>

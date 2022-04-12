@@ -41,10 +41,24 @@ namespace ExcelToXML.Controllers
         [HttpPost("FileUpload")]
         public async Task<IActionResult> FileUpload(List<IFormFile> files)
         {
+            if (files.Count == 0)
+            {
+                ViewBag.error = "ატვირთეთ ფაილი ! ";
+
+                return View("Index");
+            }
+            else
+            {
+                ViewBag.error = "";
+            }
+
             long size = files.Sum(f => f.Length);
 
             var filePaths = new List<string>();
+
             var file = files[0];
+
+           
             // if (file == null || file.Length == 0)
             //     return new Result(false, 0, "File Not Found");
 
@@ -103,7 +117,13 @@ namespace ExcelToXML.Controllers
 
                 var nonExist = getNonExistIdentificators(identifiers);
 
+                if (!String.IsNullOrEmpty(nonExist))
+                {
+                    ViewBag.nonExists = nonExist;
 
+                    return View("Index");
+                }
+                
 
 
                 var entryNumber = getEntryNumber();
@@ -128,7 +148,7 @@ namespace ExcelToXML.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public List<string> getNonExistIdentificators(List<string> names)
+        public string getNonExistIdentificators(List<string> names)
         {
 
             //string connectionString =
@@ -140,15 +160,33 @@ namespace ExcelToXML.Controllers
 
 
             var dagbknr = "202";
-            string entryNumber = "";
+            string nonExists = "";
             var list = String.Join(", ", names.ToArray());
 
-            string queryString =
-                "SELECT * FROM cicmpy WHERE VATNUMBER in (11, 10)";
-            //   + "where dagbknr = @dagbknr ";
 
-        
-              
+
+            string queryString =
+                "SELECT vatnumber FROM cicmpy where vatnumber in ";
+            //   + "where dagbknr = @dagbknr ";
+            var cc = "(";
+
+          
+
+            string qt = "select iden from (select '"+ names[0]+"' as 'iden'";
+
+            for (int i = 1; i< names.Count; i++)
+            {
+                qt += " union select '" + names[i]+"'";
+            }
+
+            qt += ") a   where not exists(select vatnumber from cicmpy where vatnumber = iden)";
+
+          
+
+            queryString = qt;
+
+
+
 
 
             using (SqlConnection connection =
@@ -157,9 +195,8 @@ namespace ExcelToXML.Controllers
                 // Create the Command and Parameter objects.
                 SqlCommand command = new SqlCommand(queryString, connection);
 
-                command.Parameters.AddWithValue("@dagbknr", dagbknr);
+                command.Parameters.AddWithValue("@list", list);
 
-                SqlCommand command1 = new SqlCommand(queryString1, connection);
 
 
                 try
@@ -168,17 +205,12 @@ namespace ExcelToXML.Controllers
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        entryNumber = reader[0].ToString();
+                        nonExists += reader[0].ToString() + "; ";
                     }
 
                     reader.Close();
 
-                    SqlDataReader reader1 = command1.ExecuteReader();
-                    while (reader1.Read())
-                    {
-                        entryNumber = reader1[1].ToString();
-                    }
-                    reader1.Close();
+                   
                 }
                 catch (Exception ex)
                 {
@@ -187,7 +219,7 @@ namespace ExcelToXML.Controllers
                 //Console.ReadLine();
             }
 
-            return entryNumber;
+            return nonExists;
         }
 
         public string getEntryNumber()
@@ -416,7 +448,7 @@ namespace ExcelToXML.Controllers
                     //}
                     var commonId = Guid.NewGuid();
                     invNumber++;
-                    var FinEntryLine = getFinEntryLine(j, doc, workSheet, invNumber.ToString(), commonId);
+                    var FinEntryLine = getFinEntryLine(i, doc, workSheet, invNumber.ToString(), commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
 
                     // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
@@ -444,6 +476,14 @@ namespace ExcelToXML.Controllers
 
         public string getGLAccountInEntryLine(string code)
         {
+
+   //         reknr bal_vw  omzrek debcrd
+               //129000   B C   D
+               //141010   B D   D
+               //311010   B C   C
+               //741011   W K   D
+
+
             if (code == "COM")
             {
                 return "741011";
@@ -455,6 +495,8 @@ namespace ExcelToXML.Controllers
 
             //თუ დებიტორი მაშინ  return '141010'
             return "311010";
+
+            //cicmpy debnr is not null => '141010'
         }
         public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet, Guid commonId)
         {
@@ -504,7 +546,7 @@ namespace ExcelToXML.Controllers
             else
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
-                ((XmlElement)GLAccount).SetAttribute("subtype", "B");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
            
