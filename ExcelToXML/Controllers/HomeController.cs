@@ -425,7 +425,7 @@ namespace ExcelToXML.Controllers
             string invoiceNumber = "";
             //select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
             string queryString =
-                "select faktuurnr from gbkmut where faktuurnr like '%802' order by faktuurnr desc";
+                "select faktuurnr from gbkmut where faktuurnr like '114%' order by faktuurnr desc";
             
 
             using (SqlConnection connection =
@@ -459,7 +459,7 @@ namespace ExcelToXML.Controllers
                 // nextInvoiceNumber++;
                 return nextInvoiceNumber.ToString();
             }
-            return "80200001";
+            return "114200001";
         }
 
 
@@ -1088,6 +1088,8 @@ namespace ExcelToXML.Controllers
 
             //GLEntry
             XmlNode GLEntryNode = doc.CreateElement("GLEntry");
+            //select max(bkstnr) from gbkmut   ->entry
+            //where dagbknr = '202'
             ((XmlElement)GLEntryNode).SetAttribute("entry", "24020023");
             ((XmlElement)GLEntryNode).SetAttribute("status", "E");
 
