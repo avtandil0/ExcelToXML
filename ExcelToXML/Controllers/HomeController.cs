@@ -223,38 +223,67 @@ namespace ExcelToXML.Controllers
                 int totalRows = workSheet.Dimension.Rows;
                 var rowLength = workSheet.Dimension.End.Row;
 
-                List<KeyValuePair<string, string>> identifiers = new List<KeyValuePair<string, string>>();
+                List<ExcelData> notExistInDb = new List<ExcelData>() { };
 
                 for (int i = 14; i <= rowLength; i++)
                 {
-                    if (workSheet.Cells[i, 16].Value == null)
+                    if (workSheet.Cells[i, 1].Value == null)
                     {
                         break;
                     }
+                    if (workSheet.Cells[i, 7].Value.ToString() == "COM" || workSheet.Cells[i, 7].Value.ToString() == "CCO"
+                        || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value.ToString()))
+                    {
+                        continue;
+                    }
 
-                    identifiers.Add(new KeyValuePair<string, string>(workSheet.Cells[i, 16].Value.ToString(), workSheet.Cells[i, 15].Value.ToString()));
+                    notExistInDb.Add(new ExcelData { 
+                        ID = Guid.NewGuid(),
+                        StatementNumber = workSheet.Cells[i, 2].Value.ToString(),
+                        Debit = workSheet.Cells[i, 4].Value?.ToString(),
+                        Credit = workSheet.Cells[i, 5].Value?.ToString(),
+                        OperationContent = workSheet.Cells[i, 6].Value.ToString().Length < 40? workSheet.Cells[i, 6].Value.ToString()
+                                                : workSheet.Cells[i, 6].Value.ToString()?.Substring(0, 40),
+                        OperationType = workSheet.Cells[i, 7].Value.ToString(),
+                        ReceiverName = workSheet.Cells[i, 15].Value.ToString(),
+                        IdentityNumber = workSheet.Cells[i, 16].Value.ToString(),
+                    });
                 }
 
 
 
-                var nonExist = getNonExistIdentificators(identifiers.Select(r => r.Key).ToList());
+                var nonExist = getNonExistIdentificators(notExistInDb.Select(r => r.IdentityNumber).ToList());
+
+                IList<ExcelData> nonExistsData = new List<ExcelData>();
+
 
                 if (nonExist.Count != 0)
                 {
                     var text = "";
                     foreach (var item in nonExist)
                     {
-                        var name = identifiers.Where(r => r.Key == item).FirstOrDefault().Value;
-                        text += String.Format(" {0} - {1}; ", item, name);
+                        var d = notExistInDb.Where(r => r.IdentityNumber == item).FirstOrDefault();
+                        nonExistsData.Add(new ExcelData() { 
+                            StatementNumber = d.StatementNumber,
+                            Debit = d.Debit,
+                            Credit = d.Credit,
+                            OperationContent = d.OperationContent,
+                            OperationType = d.OperationType,
+                            ReceiverName = d.ReceiverName,
+                            IdentityNumber = d.IdentityNumber,
+                        });
                     }
-                    ViewBag.nonExists = text;
+
+
+                    ViewData["nonExists"] = nonExistsData;
+
 
                     return View("Index");
                 }
                 
 
 
-                var entryNumber = getEntryNumber();
+                
 
                 xmlDoc = importToXML(workSheet);
 
@@ -367,8 +396,6 @@ namespace ExcelToXML.Controllers
                 "select max (bkstnr) from gbkmut ";
             //   + "where dagbknr = @dagbknr ";
 
-            string queryString1 =
-               "select top 1 vatnumber,crdnr,debnr from cicmpy";
 
            
             using (SqlConnection connection =
@@ -379,7 +406,7 @@ namespace ExcelToXML.Controllers
 
                 command.Parameters.AddWithValue("@dagbknr", dagbknr);
 
-                SqlCommand command1 = new SqlCommand(queryString1, connection);
+                SqlCommand command1 = new SqlCommand(queryString, connection);
 
               
                 try
@@ -393,21 +420,24 @@ namespace ExcelToXML.Controllers
 
                     reader.Close();
 
-                    SqlDataReader reader1 = command1.ExecuteReader();
-                    while (reader1.Read())
-                    {
-                        entryNumber = reader1[1].ToString();
-                    }
-                    reader1.Close();
                 }
                 catch (Exception ex)
                 {
-                    //Console.WriteLine(ex.Message);
+                    throw new Exception(ex.Message);
                 }
                 //Console.ReadLine();
             }
 
-            return entryNumber;
+            int newEntry = Int32.Parse(entryNumber);
+            newEntry++;
+
+            string newEntryString = newEntry.ToString();
+            if (newEntryString.Length != 8)
+            {
+                newEntryString = newEntryString.PadLeft(8,'0');
+            }
+
+            return newEntryString;
         }
 
         public string getInvoiceNumber()
@@ -463,16 +493,14 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public (string creditor, bool debnr) getCreditorFromDB(string identityNumber)
+        public Cicmpy getCreditorFromDB(string identityNumber)
         {
 
             string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
 
+            string queryString = "select top 1 crdnr,debnr,cmp_name from cicmpy where vatnumber = @identityNumber ";
 
-            string crdnr="", debnr = "";
-           
-            string queryString = "select top 1 crdnr,debnr from cicmpy where vatnumber = @identityNumber ";
-
+            var Cicmpy = new Cicmpy() { };
 
             using (SqlConnection connection =
                 new SqlConnection(connectionString))
@@ -491,8 +519,9 @@ namespace ExcelToXML.Controllers
                     SqlDataReader reader = command.ExecuteReader();
                     while (reader.Read())
                     {
-                        crdnr = reader[0].ToString();
-                        debnr = reader[1].ToString();
+                        Cicmpy.Crdnr= reader[0].ToString();
+                        Cicmpy.Debnr = reader[1].ToString();
+                        Cicmpy.CmpName = reader[2].ToString();
                     }
 
                     reader.Close();
@@ -505,11 +534,8 @@ namespace ExcelToXML.Controllers
                 //Console.ReadLine();
             }
 
-            if(crdnr != "")
-            {
-                return (crdnr, false);
-            }
-            return (debnr, true);
+            
+            return Cicmpy;
         }
 
         public FileStreamResult importToXML(ExcelWorksheet workSheet)
@@ -561,19 +587,12 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    //var j = i;467
-                    //if ( workSheet.Cells[i, 7].Value.ToString() == "COM" )
-                    //{
-                    //    if (comIndex == 0)
-                    //    {
-                    //        comIndex = i;
-                    //    }
-                    //    else
-                    //    {
-                    //       // worksheet.Cells[i, 4].Value?.ToString())
-                    //       //doc.SelectSingleNode()
-                    //    }
-                    //}
+                    if(workSheet.Cells[i, 7].Value.ToString() == "COM")
+                    {
+                        continue;
+                    }
+
+
                     var commonId = Guid.NewGuid();
                     invNumber++;
                     var FinEntryLine = getFinEntryLine(i, doc, workSheet, invNumber.ToString(), commonId);
@@ -583,10 +602,43 @@ namespace ExcelToXML.Controllers
                     // BankStatement.AppendChild(BankStatementLine);
                 }
 
+                double sumAmount = 0;
+                var existCOM = false;
+                var COMI = 0;
+                for (int i = 14; i <= rowLength; i++)
+                {
+                    if (workSheet.Cells[i, 1].Value == null)
+                    {
+                        break;
+                    }
+                    if (workSheet.Cells[i, 7].Value.ToString() == "COM")
+                    {
+                        existCOM = true;
+                        COMI = i;
+                        sumAmount += Double.Parse( workSheet.Cells[i, 4].Value.ToString());
+                        
+                        
+                    }
+
+
+
+                    // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
+                    // BankStatement.AppendChild(BankStatementLine);
+                }
+
+                if(existCOM == true)
+                {
+                    invNumber++;
+                    var FinEntryLine = getFinEntryLine(COMI, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmount);
+                    GLEntryNode.AppendChild(FinEntryLine);
+                }
+                
+
+
                 // var PaymentTerms = getPaymentTerms(doc);
                 // GLEntryNode.AppendChild(PaymentTerms);
-                
-                
+
+
 
                 // GLEntryNode.AppendChild(BankStatement);
 
@@ -682,7 +734,7 @@ namespace ExcelToXML.Controllers
             var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
 
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr.debnr);
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr.isDebnr);
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
@@ -795,8 +847,8 @@ namespace ExcelToXML.Controllers
 
             XmlNode Creditor = doc.CreateElement("Creditor");
 
-            ((XmlElement)Creditor).SetAttribute("code", cr.creditor);
-            ((XmlElement)Creditor).SetAttribute("number", cr.creditor);
+            ((XmlElement)Creditor).SetAttribute("code", cr.Crdnr);
+            ((XmlElement)Creditor).SetAttribute("number", cr.Crdnr);
             BankStatementLine.AppendChild(Creditor);
 
             XmlNode TransactionNumber = doc.CreateElement("TransactionNumber");
@@ -1089,8 +1141,13 @@ namespace ExcelToXML.Controllers
             //GLEntry
             XmlNode GLEntryNode = doc.CreateElement("GLEntry");
             //select max(bkstnr) from gbkmut   ->entry
-            //where dagbknr = '202'
-            ((XmlElement)GLEntryNode).SetAttribute("entry", "24020023");
+            //where dagbknr = '202' +
+            //select cmp_code, cmp_name, VatNumber from cicmpy   creditor Name-shi
+
+            // tu crdnr -> Creditor, debnr -> Debitor,
+            // saidentifikacios shemowmebisas ar gaivaliswinos COM CCO +
+            var entryNumber = getEntryNumber();
+            ((XmlElement)GLEntryNode).SetAttribute("entry", entryNumber);
             ((XmlElement)GLEntryNode).SetAttribute("status", "E");
 
             XmlNode Division = doc.CreateElement("Division");
@@ -1197,7 +1254,7 @@ namespace ExcelToXML.Controllers
             return GLEntryNode;
         }
 
-        public (string creditor, bool debnr) getCreditorCode(string code, string identityNymber)
+        public Cicmpy  getCreditorCode(string code, string identityNymber)
         {
             // CCO -> კრედიტორი 3
             // COM -> კრედიტორი 4
@@ -1205,19 +1262,37 @@ namespace ExcelToXML.Controllers
             // რომელიც null არაა იმით შეივსება
             if (code == "COM")
             {
-                return ("4", false);
+                return new Cicmpy()
+                {
+                    DefaultCode = "4",
+                    FromDB = false,
+                    isDebnr = false
+                };
             }
             if (code == "CCO")
             {
-                return ("3", false);
+                return new Cicmpy()
+                {
+                    DefaultCode = "3",
+                    FromDB = false,
+                    isDebnr = false
+                };
             }
 
             var result = getCreditorFromDB(identityNymber);
 
-            return result;
+
+            return new Cicmpy()
+            {
+                FromDB = true,
+                CmpName = result.CmpName,
+                Crdnr = result.Crdnr,
+                Debnr = result.Debnr,
+                isDebnr = String.IsNullOrEmpty(result.Debnr) ? true : false
+            }; 
 
         }
-        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId)
+        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId, double? sumAmount = 0)
         {
             
             //COM დაჯამდება, რეფერენსები იქნება საერთო
@@ -1243,7 +1318,7 @@ namespace ExcelToXML.Controllers
             var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
 
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes.debnr);
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes.isDebnr);
             
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
@@ -1318,14 +1393,16 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
 
-           
-            XmlNode Creditor = doc.CreateElement("Creditor");
-            ((XmlElement)Creditor).SetAttribute("code", creditorRes.creditor);
-            ((XmlElement)Creditor).SetAttribute("number", creditorRes.creditor);
+            var tagName = String.IsNullOrEmpty(creditorRes.Crdnr) ? "Creditor" : "Debitor";
+            var tagValue = tagName == "Creditor" ? creditorRes.Crdnr : creditorRes.Debnr;
+
+            XmlNode Creditor = doc.CreateElement(tagName);
+            ((XmlElement)Creditor).SetAttribute("code", tagValue);
+            ((XmlElement)Creditor).SetAttribute("number", tagValue);
             ((XmlElement)Creditor).SetAttribute("type", "S");
 
             XmlNode CreditorName = doc.CreateElement("Name");
-            CreditorName.AppendChild(doc.CreateTextNode("&#1026;&#1110;&#166;~&#1107;&#1111;&#1029;&#1110;&#1107; `^&#1108;&#1026;&#1107;-&#1031;^&#1106;"));
+            CreditorName.AppendChild(doc.CreateTextNode(creditorRes.CmpName));
             Creditor.AppendChild(CreditorName);
 
 
@@ -1361,7 +1438,16 @@ namespace ExcelToXML.Controllers
             //დებეტის ველიდან
             
             XmlNode Debit = doc.CreateElement("Debit");
-            Debit.AppendChild(doc.CreateTextNode(!String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? worksheet.Cells[i, 4].Value?.ToString() : "0"));
+            if(sumAmount > 0)
+            {
+                Debit.AppendChild(doc.CreateTextNode(sumAmount.ToString()));
+
+            }
+            else
+            {
+                Debit.AppendChild(doc.CreateTextNode(!String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? worksheet.Cells[i, 4].Value?.ToString() : "0"));
+
+            }
             FinEntryLineAmount.AppendChild(Debit);
 
             //კრედიტის ველიდან
@@ -1466,120 +1552,122 @@ namespace ExcelToXML.Controllers
             FinEntryLine.AppendChild(FinEntryLineAmount);
 
 
-            XmlNode VATTransaction = doc.CreateElement("VATTransaction");
-            ((XmlElement)VATTransaction).SetAttribute("code", "0");
+            //XmlNode VATTransaction = doc.CreateElement("VATTransaction");
+            //((XmlElement)VATTransaction).SetAttribute("code", "0");
 
-            XmlNode VATAmount = doc.CreateElement("VATAmount");
-            VATAmount.AppendChild(doc.CreateTextNode("0"));
-            VATTransaction.AppendChild(VATAmount);
+            //XmlNode VATAmount = doc.CreateElement("VATAmount");
+            //VATAmount.AppendChild(doc.CreateTextNode("0"));
+            //VATTransaction.AppendChild(VATAmount);
 
-            XmlNode VATBaseAmount = doc.CreateElement("VATBaseAmount");
-            VATBaseAmount.AppendChild(doc.CreateTextNode("0"));
-            VATTransaction.AppendChild(VATBaseAmount);
+            //XmlNode VATBaseAmount = doc.CreateElement("VATBaseAmount");
+            //VATBaseAmount.AppendChild(doc.CreateTextNode("0"));
+            //VATTransaction.AppendChild(VATBaseAmount);
 
-            XmlNode VATBaseAmountFC = doc.CreateElement("VATBaseAmountFC");
-            VATBaseAmountFC.AppendChild(doc.CreateTextNode("0"));
-            VATTransaction.AppendChild(VATBaseAmountFC);
+            //XmlNode VATBaseAmountFC = doc.CreateElement("VATBaseAmountFC");
+            //VATBaseAmountFC.AppendChild(doc.CreateTextNode("0"));
+            //VATTransaction.AppendChild(VATBaseAmountFC);
 
-            FinEntryLine.AppendChild(VATTransaction);
-
-
-
-            XmlNode Payment = doc.CreateElement("Payment");
-
-            XmlNode PaymentMethod = doc.CreateElement("PaymentMethod");
-            ((XmlElement)PaymentMethod).SetAttribute("code", "B");
-            Payment.AppendChild(PaymentMethod);
-
-            XmlNode PaymentCondition = doc.CreateElement("PaymentCondition");
-            ((XmlElement)PaymentCondition).SetAttribute("code", "00");
-
-            XmlNode PaymentConditionDescription = doc.CreateElement("Description");
-            ((XmlElement)PaymentConditionDescription).SetAttribute("code", "B");
-            PaymentCondition.AppendChild(PaymentConditionDescription);
-
-
-            Payment.AppendChild(PaymentCondition);
-
-
-            XmlNode CSSDYesNo = doc.CreateElement("CSSDYesNo");
-            CSSDYesNo.AppendChild(doc.CreateTextNode("K"));
-            Payment.AppendChild(CSSDYesNo);
-
-            XmlNode CSSDAmount1 = doc.CreateElement("CSSDAmount1");
-            CSSDAmount1.AppendChild(doc.CreateTextNode("0"));
-            Payment.AppendChild(CSSDAmount1);
-
-            XmlNode CSSDAmount2 = doc.CreateElement("CSSDAmount2");
-            CSSDAmount2.AppendChild(doc.CreateTextNode("0"));
-            Payment.AppendChild(CSSDAmount2);
-
-            XmlNode InvoiceNumber = doc.CreateElement("InvoiceNumber");
-            //select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
-
-            InvoiceNumber.AppendChild(doc.CreateTextNode(invoiceNumber));
-            Payment.AppendChild(InvoiceNumber);
-
-            XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
-            //new common Guid
-
-            BankTransactionID.AppendChild(doc.CreateTextNode(String.Format("{{{0}}}", commonId.ToString())));
-            Payment.AppendChild(BankTransactionID);
-
-
-            FinEntryLine.AppendChild(Payment);
-
-            XmlNode Delivery = doc.CreateElement("Delivery");
-
-            XmlNode DeliveryDate = doc.CreateElement("Date");
-            DeliveryDate.AppendChild(doc.CreateTextNode("2022-02-03"));
-            Delivery.AppendChild(DeliveryDate);
-
-
-            FinEntryLine.AppendChild(Delivery);
-
-
-            XmlNode FinReferences = doc.CreateElement("FinReferences");
-            ((XmlElement)FinReferences).SetAttribute("TransactionOrigin", "P");
-
-            XmlNode UniquePostingNumber = doc.CreateElement("UniquePostingNumber");
-            UniquePostingNumber.AppendChild(doc.CreateTextNode("0"));
-            FinReferences.AppendChild(UniquePostingNumber);
-
-            XmlNode YourRef = doc.CreateElement("YourRef");
-            YourRef.AppendChild(doc.CreateTextNode(""));
-            FinReferences.AppendChild(YourRef);
-
-            XmlNode FinReferencesDocumentDate = doc.CreateElement("DocumentDate");
-            FinReferencesDocumentDate.AppendChild(doc.CreateTextNode("2022-02-03"));
-            FinReferences.AppendChild(FinReferencesDocumentDate);
-
-            FinEntryLine.AppendChild(FinReferences);
+            //FinEntryLine.AppendChild(VATTransaction);
 
 
 
+            //XmlNode Payment = doc.CreateElement("Payment");
 
-            XmlNode FinEntryLineDiscount = doc.CreateElement("Discount");
+            //XmlNode PaymentMethod = doc.CreateElement("PaymentMethod");
+            //((XmlElement)PaymentMethod).SetAttribute("code", "B");
+            //Payment.AppendChild(PaymentMethod);
 
-            XmlNode FinEntryLinePercentage = doc.CreateElement("Percentage");
-            FinEntryLinePercentage.AppendChild(doc.CreateTextNode("0"));
-            FinEntryLineDiscount.AppendChild(Percentage);
+            //XmlNode PaymentCondition = doc.CreateElement("PaymentCondition");
+            //((XmlElement)PaymentCondition).SetAttribute("code", "00");
 
-            FinEntryLine.AppendChild(FinEntryLineDiscount);
+            //XmlNode PaymentConditionDescription = doc.CreateElement("Description");
+            //((XmlElement)PaymentConditionDescription).SetAttribute("code", "B");
+            //PaymentCondition.AppendChild(PaymentConditionDescription);
 
 
-            XmlNode FreeFields = doc.CreateElement("FreeFields");
+            //Payment.AppendChild(PaymentCondition);
 
-            XmlNode FreeTexts = doc.CreateElement("FreeTexts");
-            XmlNode FreeText = doc.CreateElement("FreeText");
-            FreeText.AppendChild(doc.CreateTextNode("00"));
-            ((XmlElement)FreeText).SetAttribute("number", "3");
-            FreeTexts.AppendChild(FreeText);
-            FreeFields.AppendChild(FreeTexts);
 
-            FinEntryLine.AppendChild(FreeFields);
+            //XmlNode CSSDYesNo = doc.CreateElement("CSSDYesNo");
+            //CSSDYesNo.AppendChild(doc.CreateTextNode("K"));
+            //Payment.AppendChild(CSSDYesNo);
+
+            //XmlNode CSSDAmount1 = doc.CreateElement("CSSDAmount1");
+            //CSSDAmount1.AppendChild(doc.CreateTextNode("0"));
+            //Payment.AppendChild(CSSDAmount1);
+
+            //XmlNode CSSDAmount2 = doc.CreateElement("CSSDAmount2");
+            //CSSDAmount2.AppendChild(doc.CreateTextNode("0"));
+            //Payment.AppendChild(CSSDAmount2);
+
+            //XmlNode InvoiceNumber = doc.CreateElement("InvoiceNumber");
+            ////select faktuurnr from gbkmut where dagbknr='202' დაიწყება 802-ით '80200001'
+
+            //InvoiceNumber.AppendChild(doc.CreateTextNode(invoiceNumber));
+            //Payment.AppendChild(InvoiceNumber);
+
+            //XmlNode BankTransactionID = doc.CreateElement("BankTransactionID");
+            ////new common Guid
+
+            //BankTransactionID.AppendChild(doc.CreateTextNode(String.Format("{{{0}}}", commonId.ToString())));
+            //Payment.AppendChild(BankTransactionID);
+
+
+            //FinEntryLine.AppendChild(Payment);
+
+            //XmlNode Delivery = doc.CreateElement("Delivery");
+
+            //XmlNode DeliveryDate = doc.CreateElement("Date");
+            //DeliveryDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            //Delivery.AppendChild(DeliveryDate);
+
+
+            //FinEntryLine.AppendChild(Delivery);
+
+
+            //XmlNode FinReferences = doc.CreateElement("FinReferences");
+            //((XmlElement)FinReferences).SetAttribute("TransactionOrigin", "P");
+
+            //XmlNode UniquePostingNumber = doc.CreateElement("UniquePostingNumber");
+            //UniquePostingNumber.AppendChild(doc.CreateTextNode("0"));
+            //FinReferences.AppendChild(UniquePostingNumber);
+
+            //XmlNode YourRef = doc.CreateElement("YourRef");
+            //YourRef.AppendChild(doc.CreateTextNode(""));
+            //FinReferences.AppendChild(YourRef);
+
+            //XmlNode FinReferencesDocumentDate = doc.CreateElement("DocumentDate");
+            //FinReferencesDocumentDate.AppendChild(doc.CreateTextNode("2022-02-03"));
+            //FinReferences.AppendChild(FinReferencesDocumentDate);
+
+            //FinEntryLine.AppendChild(FinReferences);
+
+
+
+
+            //XmlNode FinEntryLineDiscount = doc.CreateElement("Discount");
+
+            //XmlNode FinEntryLinePercentage = doc.CreateElement("Percentage");
+            //FinEntryLinePercentage.AppendChild(doc.CreateTextNode("0"));
+            //FinEntryLineDiscount.AppendChild(Percentage);
+
+            //FinEntryLine.AppendChild(FinEntryLineDiscount);
+
+
+            //XmlNode FreeFields = doc.CreateElement("FreeFields");
+
+            //XmlNode FreeTexts = doc.CreateElement("FreeTexts");
+            //XmlNode FreeText = doc.CreateElement("FreeText");
+            //FreeText.AppendChild(doc.CreateTextNode("00"));
+            //((XmlElement)FreeText).SetAttribute("number", "3");
+            //FreeTexts.AppendChild(FreeText);
+            //FreeFields.AppendChild(FreeTexts);
+
+            //FinEntryLine.AppendChild(FreeFields);
 
             return FinEntryLine;
         }
+
+       
     }
 }

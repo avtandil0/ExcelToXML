@@ -1,9 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿
 
 <div class="text-center">
-    <h5 >XML-ში კონვერტაციისთვის ატვირთეთ ექსელის ფაილი</h5>
+    <h5>XML-ში კონვერტაციისთვის ატვირთეთ ექსელის ფაილი</h5>
 </div>
 <div style="display:flex; justify-content: center;margin-top:25px;">
     <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="FileUpload">
@@ -11,29 +9,53 @@
             <div>
                 @*<input type="file" name="files" multiple />*@
                 <div class="mb-3">
-                    <input style="width:500px" class="form-control"  type="file" name="files" multiple id="formFile">
+                    <input style="width:500px" class="form-control" type="file" name="files" multiple id="formFile">
                 </div>
             </div>
             <div style="margin-left: 15px;">
                 <input class="btn btn-primary" type="submit" value="კონვერტაცია" />
             </div>
         </div>
-       
+
 
 
 
     </form>
 </div>
+@if (ViewData["nonExists"] != null)
+{
+<table class="table table-hover" >
+    <thead>
+        <tr>
+            <th style="min-width: 120px;">საბუთის N</th>
+            <th>დებეტი</th>
+            <th>კრედიტი</th>
+            <th style="min-width: 240px;">ოპერაციის შინაარსი</th>
+            <th style="min-width: 170px;">ოპერაციის ტიპი</th>
+            <th style="min-width: 215px;">მიმღების დასახელება</th>
+            <th style="min-width: 330px;">მიმღების საიდენტიფიკაციო კოდი</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var data in ViewData["nonExists"] as IList<ExcelData>)
+        {
+        <tr>
+            <td>  @data.StatementNumber</td>
+            <td>  @data.Debit</td>
+            <td>  @data.Credit</td>
+            <td>  @data.OperationContent ...</td>
+            <td>  @data.OperationType</td>
+            <td>  @data.ReceiverName</td>
+            <td><span style="color: red;">@data.IdentityNumber</span> </td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
 
-<div class="text-center">
-    @if (!String.IsNullOrEmpty(@ViewBag.nonExists))
-    {
-        <div style="color: red">
-            <h6>ვერ მოიძებნა [ @ViewBag.nonExists ]</h6>
-        </div>
-    }
-    <div style="color: red">
-        <h5>@ViewBag.error </h5>
-    </div>
 
+
+
+<div class="text-center" style="color: red">
+    <h5>@ViewBag.error </h5>
 </div>
