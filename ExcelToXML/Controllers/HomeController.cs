@@ -616,8 +616,6 @@ namespace ExcelToXML.Controllers
                         existCOM = true;
                         COMI = i;
                         sumAmount += Double.Parse( workSheet.Cells[i, 4].Value.ToString());
-                        
-                        
                     }
 
 
@@ -1393,8 +1391,14 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
 
-            var tagName = String.IsNullOrEmpty(creditorRes.Crdnr) ? "Creditor" : "Debitor";
+            var tagName = String.IsNullOrEmpty(creditorRes.Crdnr) ? "Debitor" : "Creditor";
             var tagValue = tagName == "Creditor" ? creditorRes.Crdnr : creditorRes.Debnr;
+
+            if(creditorRes.FromDB == false)
+            {
+                tagName = "Debitor";
+                tagValue = creditorRes.DefaultCode;
+            }
 
             XmlNode Creditor = doc.CreateElement(tagName);
             ((XmlElement)Creditor).SetAttribute("code", tagValue);

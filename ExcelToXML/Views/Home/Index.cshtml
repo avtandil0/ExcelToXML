@@ -24,6 +24,9 @@
 </div>
 @if (ViewData["nonExists"] != null)
 {
+<div class="text-center" style="color: red; margin: 15px">
+    <h5>ვერ მოიძებნა :</h5> 
+</div>
 <table class="table table-hover" >
     <thead>
         <tr>
@@ -46,7 +49,7 @@
             <td>  @data.OperationContent ...</td>
             <td>  @data.OperationType</td>
             <td>  @data.ReceiverName</td>
-            <td><span style="color: red;">@data.IdentityNumber</span> </td>
+            <td><h6 style="color: red;">@data.IdentityNumber</h6> </td>
         </tr>
         }
     </tbody>
