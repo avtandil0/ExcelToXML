@@ -393,11 +393,11 @@ namespace ExcelToXML.Controllers
             var dagbknr = "202";
             string entryNumber = "" ;
             string queryString =
-                "select max (bkstnr) from gbkmut ";
-            //   + "where dagbknr = @dagbknr ";
+                "select max (bkstnr) from gbkmut "
+            +"where dagbknr = @dagbknr ";
 
 
-           
+
             using (SqlConnection connection =
                 new SqlConnection(connectionString))
             {
@@ -1286,7 +1286,7 @@ namespace ExcelToXML.Controllers
                 CmpName = result.CmpName,
                 Crdnr = result.Crdnr,
                 Debnr = result.Debnr,
-                isDebnr = String.IsNullOrEmpty(result.Debnr) ? true : false
+                isDebnr = String.IsNullOrEmpty(result.Debnr) ? false : true
             }; 
 
         }
@@ -1313,7 +1313,9 @@ namespace ExcelToXML.Controllers
             ((XmlElement)FinPeriod).SetAttribute("number", DateTime.Parse(d).Month.ToString());
             FinEntryLine.AppendChild(FinPeriod);
 
-            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
+            var identNumber = worksheet.Cells[i, 16].Value == null? "" : worksheet.Cells[i, 16].Value.ToString();
+        
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber);
 
 
             var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes.isDebnr);
@@ -1391,12 +1393,12 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
 
-            var tagName = String.IsNullOrEmpty(creditorRes.Crdnr) ? "Debitor" : "Creditor";
+            var tagName = String.IsNullOrEmpty(creditorRes.Crdnr) ? "Debtor" : "Creditor";
             var tagValue = tagName == "Creditor" ? creditorRes.Crdnr : creditorRes.Debnr;
 
             if(creditorRes.FromDB == false)
             {
-                tagName = "Debitor";
+                tagName = "Creditor";
                 tagValue = creditorRes.DefaultCode;
             }
 
