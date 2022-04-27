@@ -1,0 +1,358 @@
+﻿<eExact xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" noNamespaceSchemaLocation="eExact-Schema.xsd">
+  <GLEntries>
+    <GLEntry entry="00000001" status="E">
+      <Division code="150" />
+      <DocumentDate>2022-02-03</DocumentDate>
+      <Journal code="202" type="B">
+        <Description>GEL 3406000029</Description>
+        <GLAccount code="  121003" type="B" subtype="B" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <GLPaymentInTransit code="999001" type="B" subtype="N" side="C">
+          <Description>|^Јє^ћѓђ¦`¦ђѓ Ѓ^єў¦`ѓ `^єЂљѓ</Description>
+        </GLPaymentInTransit>
+      </Journal>
+      <Costcenter code="001CC001">
+        <Description>Default cost center</Description>
+        <GLAccount code="719990" type="D" subtype="W" side="K">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <GLOffset code="719990" type="D" subtype="W" side="K">
+          <Description>GEL 3406000029</Description>
+        </GLOffset>
+      </Costcenter>
+      <Amount>
+        <Currency code="  GEL" />
+        <Value>0</Value>
+      </Amount>
+      <ForeignAmount>
+        <Currency code="  GEL" />
+        <Value>0</Value>
+      </ForeignAmount>
+      <FinEntryLine number="1" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="129000" type="B" subtype="C" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>¤^ђЈїѓЇ |^њ¤ђѓЃѓ Ѕѕ¦і^њѓ^. ЂЈіЇѓ:3.002 ЂЅєїіЃ^єў^: USD15,000</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="3" number="3" type="S">
+          <Name></Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>0</Debit>
+          <Credit>45030</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+      <FinEntryLine number="2" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="C" side="C">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>`ѓЅЄі^¤^ђј¦іЅ¤є¦`ѓЇ, џѓ~іЅђЅ|ѓЈіѓ |^і¦ЄЅЇ ~^ ЂђѓЄ^їѓЇ Ђ¤ђ¦¤ѓ</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   899" number="   899" type="S">
+          <Name>დათო ჯვართავა ი/მ</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>11339.32</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+      <FinEntryLine number="3" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="C" side="C">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>Ї^Ќ^іЃ¤¦ђЅЇ `ѓґє¦Ї ^ЇЅњѓ^њѓѓЇ Ї^ћ¦¤іЅЇ ћђѓЈіѓ |^~^Ї^ў^~ѓ, ѓє</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   899" number="   899" type="S">
+          <Name>დათო ჯვართავა ი/მ</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>30286</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+      <FinEntryLine number="5" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="C" side="C">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>Ї^ЄЇ^ўЈі¦`іѓ¤ѓ `^і^Ѓѓ 83103 ІЈЊЂЅ¤ѓ ^іїѓЅЄ GE22BG00000001012</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="  1908" number="  1908" type="S">
+          <Name>ჯაბა ბოლაშვილი</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>862</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+      <FinEntryLine number="6" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="311010" type="B" subtype="C" side="C">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>Ђ¤¦`ѓЇ ѕіЅ~ЈЌї¦`ѓЇЃ¤ѓЇ, Ї^|^~^Ї^ў^~Ѕ ^ј ¦^74 0704911, ¦^73 6</Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="   932" number="   932" type="S">
+          <Name>ელენე ბედუელ ფ/პ</Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>9497.6</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+      <FinEntryLine number="7" type="N" subtype="Z">
+        <Date>2022-02-03</Date>
+        <FinYear number="2022" />
+        <FinPeriod number="2" />
+        <GLAccount code="741011" type="W" subtype="K" side="D">
+          <Description>GEL 3406000029</Description>
+        </GLAccount>
+        <Description>|^~^іѓњў¤ѓЇ Ї^ЂЅЄѓЇѓЅ: Ђ¤¦`ѓЇ ѕіЅ~ЈЌї¦`ѓЇЃ¤ѓЇ, Ї^|^~^Ї^ў^~Ѕ </Description>
+        <Costcenter code="001CC001">
+          <Description>Default cost center</Description>
+          <GLAccount code="   719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLAccount>
+          <GLOffset code=" 719990" type="D" subtype="W" side="K">
+            <Description>GEL 3406000029</Description>
+          </GLOffset>
+        </Costcenter>
+        <Creditor code="4" number="4" type="S">
+          <Name></Name>
+        </Creditor>
+        <Resource number="1" code="BMOSIDZE">
+          <LastName>&amp;#1028;&amp;#1029;&amp;#1031;&amp;#1107;&amp;#1035;&amp;#166;</LastName>
+          <FirstName>`&amp;#166;&amp;#1031;&amp;#1107;&amp;#1026;</FirstName>
+        </Resource>
+        <Quantity>0</Quantity>
+        <Amount>
+          <Currency code="GEL" />
+          <Debit>19.89</Debit>
+          <Credit>0</Credit>
+          <VAT code="0" type="B" vattype="N" taxtype="V">
+            <Description>VAT 0%</Description>
+            <MultiDescriptions>
+              <MultiDescription number="1">VAT 0%</MultiDescription>
+              <MultiDescription number="2">VAT 0%</MultiDescription>
+              <MultiDescription number="3">VAT 0%</MultiDescription>
+              <MultiDescription number="4">VAT 0%</MultiDescription>
+            </MultiDescriptions>
+            <Percentage>0</Percentage>
+            <Charged>0</Charged>
+            <VATExemption>0</VATExemption>
+            <ExtraDutyPercentage>0</ExtraDutyPercentage>
+            <GLToPay code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToPay>
+            <GLToClaim code="   333010" side="C" type="B" subtype="C">
+              <Description>|^~^&amp;#1031;^&amp;#1118;~&amp;#166;&amp;#1106;&amp;#1107; ~&amp;#1116;|0</Description>
+            </GLToClaim>
+            <Creditor code="        1" number="        1" type="S">
+              <Name>VAT Creditor</Name>
+            </Creditor>
+            <PaymentPeriod>M</PaymentPeriod>
+          </VAT>
+        </Amount>
+      </FinEntryLine>
+    </GLEntry>
+  </GLEntries>
+</eExact>

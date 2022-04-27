@@ -14,6 +14,16 @@ using Microsoft.AspNetCore.Hosting;
 using OfficeOpenXml;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using ExcelToXML.Auth;
+using Microsoft.AspNetCore.Authorization;
+
+
+
+//select dagbknr, dbo.getunicode(dagbk.oms25_0), dagbk.reknr,dbo.getunicode(grtbk.oms25_0)
+//from dagbk inner join grtbk on dagbk.reknr = grtbk.reknr
+//where type_dgbk = 'B'
+
+
 
 namespace ExcelToXML.Controllers
 {
@@ -23,18 +33,96 @@ namespace ExcelToXML.Controllers
         private IWebHostEnvironment Environment;
         private IConfiguration Configuration;
 
+        private readonly ITokenService _tokenService;
+        private string generatedToken = null;
+        private readonly IUserRepository _userRepository;
 
 
-        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment _environment, IConfiguration _configuration)
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment _environment, IConfiguration _configuration, ITokenService tokenService, IUserRepository userRepository)
         {
             _logger = logger;
             Environment = _environment;
             Configuration = _configuration;
+            _tokenService = tokenService;
+            _userRepository = userRepository;
 
+
+        }
+
+
+        [Route("Login")]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [Authorize]
+        [Route("LogOut")]
+        public IActionResult LogOut()
+        {
+            HttpContext.Session.SetString("Token", "");
+            return RedirectToAction("Index");
+        }
+
+        [AllowAnonymous]
+        [Route("login")]
+        [HttpPost]
+        public IActionResult Login(UserDTO userModel)
+        {
+            if (string.IsNullOrEmpty(userModel.UserName) || string.IsNullOrEmpty(userModel.Password))
+            {
+                ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
+
+                return View("Login");
+            }
+
+            IActionResult response = Unauthorized();
+            var validUser = GetUser(userModel);
+
+            if (validUser != null)
+            {
+                generatedToken = _tokenService.BuildToken(Configuration["Jwt:Key"].ToString(), Configuration["Jwt:Issuer"].ToString(),
+                validUser);
+
+                if (generatedToken != null)
+                {
+                    HttpContext.Session.SetString("Token", generatedToken);
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
+
+                    return View("Login");
+                }
+            }
+            else
+            {
+                ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
+
+                return View("Login");
+            }
+        }
+
+        private UserDTO GetUser(UserDTO userModel)
+        {
+            //Write your code here to authenticate the user
+            return _userRepository.GetUser(userModel);
         }
 
         public IActionResult Index()
         {
+            string token = HttpContext.Session.GetString("Token");
+
+            if (String.IsNullOrEmpty(token))
+            {
+                return (RedirectToAction("Login"));
+            }
+
+
+            var jurnals = getJurnals();
+            ViewBag.jurnals = jurnals;
             return View();
         }
 
@@ -159,19 +247,28 @@ namespace ExcelToXML.Controllers
             return tmp;
         }
 
-        [HttpPost("FileUpload")]
-        public async Task<IActionResult> FileUpload(List<IFormFile> files)
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Index(List<IFormFile> files, string jurnal)
         {
 
             if (files.Count == 0)
             {
                 ViewBag.error = "ატვირთეთ ფაილი ! ";
 
+                var jurnals = getJurnals();
+                ViewBag.jurnals = jurnals;
+
                 return View("Index");
             }
-            else
+            if (jurnal == "0")
             {
-                ViewBag.error = "";
+                ViewBag.error = "აირჩიეთ ჟურნალი ! ";
+
+                var jurnals = getJurnals();
+                ViewBag.jurnals = jurnals;
+
+                return View("Index");
             }
 
             long size = files.Sum(f => f.Length);
@@ -305,6 +402,69 @@ namespace ExcelToXML.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
+        public List<Jurnal> getJurnals()
+        {
+
+            //string connectionString =
+            // "Data Source=(local);Initial Catalog=Northwind;"
+            // + "Integrated Security=true";
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+            var dagbknr = "202";
+            List<Jurnal> jurnals = new List<Jurnal>();
+
+            string queryString =
+                @"
+                select distinct dagbk.ID, dagbknr, dbo.getunicode(dagbk.oms25_0) as dagbkDesc, dagbk.reknr,dbo.getunicode(grtbk.oms25_0) as grtbkDesc
+                    from dagbk inner join grtbk on dagbk.reknr = grtbk.reknr
+                    where type_dgbk = 'B'";
+
+
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@dagbknr", dagbknr);
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        jurnals.Add( new Jurnal
+                        {
+                            ID = reader[0].ToString(),
+                            Dagbknr = reader[1].ToString(),
+                            DagbkDesc = reader[2].ToString(),
+                            Reknr = reader[3].ToString(),
+                            GrtbkDesc = reader[4].ToString(),
+                        });
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+            
+            return jurnals;
+        }
+
         public List<string> getNonExistIdentificators(List<string> names)
         {
 
@@ -426,6 +586,10 @@ namespace ExcelToXML.Controllers
                     throw new Exception(ex.Message);
                 }
                 //Console.ReadLine();
+            }
+            if (String.IsNullOrEmpty(entryNumber))
+            {
+                entryNumber = "0";
             }
 
             int newEntry = Int32.Parse(entryNumber);
@@ -1181,11 +1345,11 @@ namespace ExcelToXML.Controllers
             XmlNode GLPaymentInTransit = doc.CreateElement("GLPaymentInTransit");
             ((XmlElement)GLPaymentInTransit).SetAttribute("code", "999001");
             ((XmlElement)GLPaymentInTransit).SetAttribute("type", "B");
-            ((XmlElement)GLPaymentInTransit).SetAttribute("subtype", "B");
-            ((XmlElement)GLPaymentInTransit).SetAttribute("side", "D");
+            ((XmlElement)GLPaymentInTransit).SetAttribute("subtype", "N");
+            ((XmlElement)GLPaymentInTransit).SetAttribute("side", "C");
 
             XmlNode GLPaymentInTransitDescription = doc.CreateElement("Description");
-            GLPaymentInTransitDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
+            GLPaymentInTransitDescription.AppendChild(doc.CreateTextNode(transformFromUnicode("გაუნაწილებელი თანხები ბანკში")));
             GLPaymentInTransit.AppendChild(GLPaymentInTransitDescription);
 
 

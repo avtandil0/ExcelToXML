@@ -4,12 +4,24 @@
     <h5>XML-ში კონვერტაციისთვის ატვირთეთ ექსელის ფაილი</h5>
 </div>
 <div style="display:flex; justify-content: center;margin-top:25px;">
-    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="FileUpload">
+    <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="Index">
         <div style="display: flex">
             <div>
                 @*<input type="file" name="files" multiple />*@
-                <div class="mb-3">
-                    <input style="width:500px" class="form-control" type="file" name="files" multiple id="formFile">
+                <div class="mb-3" style="display: flex">
+                    <input style="width:450px" class="form-control" type="file" name="files" multiple id="formFile" >
+
+                    <select class="form-select" style="width:200px; margin-left: 15px" name="jurnal">
+                        <option value="0">აირჩიეთ ...</option>
+                        @if(ViewBag.jurnals != null){
+                        @foreach (var item in ViewBag.jurnals as IList<Jurnal>)
+                               {
+                        <option value="@item.ID">@item.Dagbknr  @item.DagbkDesc</option>
+                               }
+
+                        }
+
+                    </select>
                 </div>
             </div>
             <div style="margin-left: 15px;">

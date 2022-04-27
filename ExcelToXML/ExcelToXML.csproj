@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.0.2-beta" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
 
