@@ -382,7 +382,7 @@ namespace ExcelToXML.Controllers
 
                 
 
-                xmlDoc = importToXML(workSheet);
+                xmlDoc = importToXML(workSheet, jurnal);
 
 
             }
@@ -702,7 +702,7 @@ namespace ExcelToXML.Controllers
             return Cicmpy;
         }
 
-        public FileStreamResult importToXML(ExcelWorksheet workSheet)
+        public FileStreamResult importToXML(ExcelWorksheet workSheet, string jurnal)
         {
             MemoryStream ms = new MemoryStream();
             XmlWriterSettings xws = new XmlWriterSettings();
@@ -724,7 +724,7 @@ namespace ExcelToXML.Controllers
                 XmlNode GLEntriesNode = doc.CreateElement("GLEntries");
                 doc.DocumentElement.AppendChild(GLEntriesNode);
 
-                var GLEntryNode = getGLEntryNode(doc, workSheet);
+                var GLEntryNode = getGLEntryNode(doc, workSheet, jurnal);
 
                 var rowLength = workSheet.Dimension.End.Row;
 
@@ -1296,7 +1296,7 @@ namespace ExcelToXML.Controllers
 
         }
 
-        public XmlNode getGLEntryNode(XmlDocument doc,  ExcelWorksheet worksheet)
+        public XmlNode getGLEntryNode(XmlDocument doc,  ExcelWorksheet worksheet, string jurnal)
         {
 
 
@@ -1323,7 +1323,7 @@ namespace ExcelToXML.Controllers
             GLEntryNode.AppendChild(DocumentDate);
 
             XmlNode Journal = doc.CreateElement("Journal");
-            ((XmlElement)Journal).SetAttribute("code", "202");
+            ((XmlElement)Journal).SetAttribute("code", jurnal);
             ((XmlElement)Journal).SetAttribute("type", "B");
 
 
