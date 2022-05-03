@@ -13,5 +13,7 @@ namespace ExcelToXML.Models
         public bool FromDB { get; set; }
         public string DefaultCode { get; set; }
         public bool isDebnr { get; set; }
+        public string ClassificationId { get; set; }
+
     }
 }

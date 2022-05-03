@@ -22,7 +22,8 @@ using Microsoft.AspNetCore.Authorization;
 //select dagbknr, dbo.getunicode(dagbk.oms25_0), dagbk.reknr,dbo.getunicode(grtbk.oms25_0)
 //from dagbk inner join grtbk on dagbk.reknr = grtbk.reknr
 //where type_dgbk = 'B'
-
+//select dagbknr, reknr from dagbk
+//getcreditr
 
 
 namespace ExcelToXML.Controllers
@@ -374,6 +375,8 @@ namespace ExcelToXML.Controllers
 
                     ViewData["nonExists"] = nonExistsData;
 
+                    var jurnals = getJurnals();
+                    ViewBag.jurnals = jurnals;
 
                     return View("Index");
                 }
@@ -467,7 +470,10 @@ namespace ExcelToXML.Controllers
 
         public List<string> getNonExistIdentificators(List<string> names)
         {
-
+            if(names.Count() == 0)
+            {
+                return names;
+            }
             //string connectionString =
             // "Data Source=(local);Initial Catalog=Northwind;"
             // + "Integrated Security=true";
@@ -539,7 +545,7 @@ namespace ExcelToXML.Controllers
             return nonExists;
         }
 
-        public string getEntryNumber()
+        public string getEntryNumber(string dagbknr)
         {
 
             //string connectionString =
@@ -550,7 +556,7 @@ namespace ExcelToXML.Controllers
 
 
 
-            var dagbknr = "202";
+            //var dagbknr = "202";
             string entryNumber = "" ;
             string queryString =
                 "select max (bkstnr) from gbkmut "
@@ -602,6 +608,64 @@ namespace ExcelToXML.Controllers
             }
 
             return newEntryString;
+        }
+
+        public JurnalInfo getJurnalInfo(string jurn)
+        {
+
+            //string connectionString =
+            // "Data Source=(local);Initial Catalog=Northwind;"
+            // + "Integrated Security=true";
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+            var dagbknr = "202";
+            string queryString =
+                @"select d.dagbknr, d.reknr, g.bal_vw, g. debcrd, g.omzrek
+ from dagbk d inner
+ join grtbk g on d.reknr = g.reknr
+ where g.omzrek = 'B'and dagbknr = @jurn ";
+
+
+            var journal = new JurnalInfo { };
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@jurn", jurn);
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        journal.dagbknr = reader[0].ToString();
+                        journal.reknr = reader[1].ToString();
+                        journal.bal_vw = reader[2].ToString();
+                        journal.debcrd = reader[3].ToString();
+                        journal.omzrek = reader[4].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+           
+
+            return journal;
         }
 
         public string getInvoiceNumber()
@@ -662,7 +726,7 @@ namespace ExcelToXML.Controllers
 
             string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
 
-            string queryString = "select top 1 crdnr,debnr,cmp_name from cicmpy where vatnumber = @identityNumber ";
+            string queryString = "select top 1 crdnr,debnr,cmp_name,ClassificationId from cicmpy where vatnumber = @identityNumber ";
 
             var Cicmpy = new Cicmpy() { };
 
@@ -686,6 +750,7 @@ namespace ExcelToXML.Controllers
                         Cicmpy.Crdnr= reader[0].ToString();
                         Cicmpy.Debnr = reader[1].ToString();
                         Cicmpy.CmpName = reader[2].ToString();
+                        Cicmpy.ClassificationId = reader[3].ToString();
                     }
 
                     reader.Close();
@@ -700,6 +765,47 @@ namespace ExcelToXML.Controllers
 
             
             return Cicmpy;
+        }
+
+        public string getDivision()
+        {
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+            string queryString = "select bedrnr from bedryf";
+
+            var div = "";
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        div = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+
+            return div;
         }
 
         public FileStreamResult importToXML(ExcelWorksheet workSheet, string jurnal)
@@ -816,7 +922,7 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public string getGLAccountInEntryLine(string code, bool debnr)
+        public string getGLAccountInEntryLine(string code, Cicmpy cicmpy)
         {
 
    //         reknr bal_vw  omzrek debcrd
@@ -834,9 +940,14 @@ namespace ExcelToXML.Controllers
             {
                 return "129000";
             }
-            if(debnr == true)
+            if(cicmpy.isDebnr == true)
             {
                 return "141010";
+            }
+
+            if(cicmpy.ClassificationId == "300")
+            {
+                return "143010";
             }
 
             //თუ დებიტორი მაშინ  return '141010'
@@ -896,7 +1007,7 @@ namespace ExcelToXML.Controllers
             var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
 
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr.isDebnr);
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr);
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
@@ -930,6 +1041,12 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
+            }
+            if (gLAccountCode == "143010")
+            {
+                ((XmlElement)GLAccount).SetAttribute("type", "B");
+                ((XmlElement)GLAccount).SetAttribute("subtype", "C");
+                ((XmlElement)GLAccount).SetAttribute("side", "C");
             }
 
 
@@ -1308,12 +1425,13 @@ namespace ExcelToXML.Controllers
 
             // tu crdnr -> Creditor, debnr -> Debitor,
             // saidentifikacios shemowmebisas ar gaivaliswinos COM CCO +
-            var entryNumber = getEntryNumber();
+            var entryNumber = getEntryNumber(jurnal);
             ((XmlElement)GLEntryNode).SetAttribute("entry", entryNumber);
             ((XmlElement)GLEntryNode).SetAttribute("status", "E");
 
             XmlNode Division = doc.CreateElement("Division");
-            ((XmlElement)Division).SetAttribute("code", "150");
+            var div = getDivision();
+            ((XmlElement)Division).SetAttribute("code", div);
             GLEntryNode.AppendChild(Division);
 
             XmlNode DocumentDate = doc.CreateElement("DocumentDate");
@@ -1331,11 +1449,12 @@ namespace ExcelToXML.Controllers
             Description.AppendChild(doc.CreateTextNode("GEL 3406000029"));
             Journal.AppendChild(Description);
 
+            var jur = getJurnalInfo(jurnal);
             XmlNode GLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)GLAccount).SetAttribute("code", "  121003");
-            ((XmlElement)GLAccount).SetAttribute("type", "B");
-            ((XmlElement)GLAccount).SetAttribute("subtype", "B");
-            ((XmlElement)GLAccount).SetAttribute("side", "D");
+            ((XmlElement)GLAccount).SetAttribute("code", jur.reknr);
+            ((XmlElement)GLAccount).SetAttribute("type", jur.bal_vw);
+            ((XmlElement)GLAccount).SetAttribute("subtype", jur.omzrek);
+            ((XmlElement)GLAccount).SetAttribute("side", jur.debcrd);
 
             XmlNode GLDescription = doc.CreateElement("Description");
             GLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -1442,7 +1561,10 @@ namespace ExcelToXML.Controllers
             }
 
             var result = getCreditorFromDB(identityNymber);
+            //if clasificationid == 300 -> glacount code =143010 
+            //
 
+            //select bedrnr from bedryf  -> division code
 
             return new Cicmpy()
             {
@@ -1450,7 +1572,8 @@ namespace ExcelToXML.Controllers
                 CmpName = result.CmpName,
                 Crdnr = result.Crdnr,
                 Debnr = result.Debnr,
-                isDebnr = String.IsNullOrEmpty(result.Debnr) ? false : true
+                isDebnr = String.IsNullOrEmpty(result.Debnr) ? false : true,
+                ClassificationId = result.ClassificationId
             }; 
 
         }
@@ -1482,7 +1605,7 @@ namespace ExcelToXML.Controllers
             var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber);
 
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes.isDebnr);
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes);
             
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
@@ -1509,6 +1632,12 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            }
+            if (gLAccountCode == "143010")
+            {
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
+                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
             }
 
             XmlNode FinEntryLineGLDescription = doc.CreateElement("Description");
