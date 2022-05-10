@@ -335,6 +335,12 @@ namespace ExcelToXML.Controllers
                         continue;
                     }
 
+                    var IdentNumber = workSheet.Cells[i, 16].Value.ToString();
+                    if (workSheet.Cells[i, 16].Value.ToString() == Configuration["VATNumber"].ToString())
+                    {
+                        IdentNumber = workSheet.Cells[i, 11].Value.ToString();
+                    }
+
                     notExistInDb.Add(new ExcelData { 
                         ID = Guid.NewGuid(),
                         StatementNumber = workSheet.Cells[i, 2].Value.ToString(),
@@ -344,7 +350,7 @@ namespace ExcelToXML.Controllers
                                                 : workSheet.Cells[i, 6].Value.ToString()?.Substring(0, 40),
                         OperationType = workSheet.Cells[i, 7].Value.ToString(),
                         ReceiverName = workSheet.Cells[i, 15].Value.ToString(),
-                        IdentityNumber = workSheet.Cells[i, 16].Value.ToString(),
+                        IdentityNumber = IdentNumber,
                     });
                 }
 
@@ -830,7 +836,9 @@ namespace ExcelToXML.Controllers
                 XmlNode GLEntriesNode = doc.CreateElement("GLEntries");
                 doc.DocumentElement.AppendChild(GLEntriesNode);
 
-                var GLEntryNode = getGLEntryNode(doc, workSheet, jurnal);
+                var division = getDivision();
+
+                var GLEntryNode = getGLEntryNode(doc, workSheet, jurnal, division);
 
                 var rowLength = workSheet.Dimension.End.Row;
 
@@ -865,7 +873,7 @@ namespace ExcelToXML.Controllers
 
                     var commonId = Guid.NewGuid();
                     invNumber++;
-                    var FinEntryLine = getFinEntryLine(i, doc, workSheet, invNumber.ToString(), commonId);
+                    var FinEntryLine = getFinEntryLine(division,i, doc, workSheet, invNumber.ToString(), commonId);
                     GLEntryNode.AppendChild(FinEntryLine);
 
                     // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
@@ -897,7 +905,7 @@ namespace ExcelToXML.Controllers
                 if(existCOM == true)
                 {
                     invNumber++;
-                    var FinEntryLine = getFinEntryLine(COMI, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmount);
+                    var FinEntryLine = getFinEntryLine(division,COMI, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmount);
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
                 
@@ -1004,7 +1012,7 @@ namespace ExcelToXML.Controllers
             StatementDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(StatementDate);
 
-            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString());
+            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 7].Value.ToString());
 
 
             var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr);
@@ -1413,7 +1421,7 @@ namespace ExcelToXML.Controllers
 
         }
 
-        public XmlNode getGLEntryNode(XmlDocument doc,  ExcelWorksheet worksheet, string jurnal)
+        public XmlNode getGLEntryNode(XmlDocument doc,  ExcelWorksheet worksheet, string jurnal, string division)
         {
 
 
@@ -1430,8 +1438,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)GLEntryNode).SetAttribute("status", "E");
 
             XmlNode Division = doc.CreateElement("Division");
-            var div = getDivision();
-            ((XmlElement)Division).SetAttribute("code", div);
+            ((XmlElement)Division).SetAttribute("code", division);
             GLEntryNode.AppendChild(Division);
 
             XmlNode DocumentDate = doc.CreateElement("DocumentDate");
@@ -1449,6 +1456,7 @@ namespace ExcelToXML.Controllers
             Description.AppendChild(doc.CreateTextNode("GEL 3406000029"));
             Journal.AppendChild(Description);
 
+            //
             var jur = getJurnalInfo(jurnal);
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", jur.reknr);
@@ -1535,12 +1543,14 @@ namespace ExcelToXML.Controllers
             return GLEntryNode;
         }
 
-        public Cicmpy  getCreditorCode(string code, string identityNymber)
+        public Cicmpy  getCreditorCode(string code, string identityNymber, string description)
         {
             // CCO -> კრედიტორი 3
             // COM -> კრედიტორი 4
             // სვა შემთხვევაში select vatnumber,crdnr,debnr from cicmpy where VatNumber = '102189454'(მიმღების საიდენთიფიკაციო კოდი)
             // რომელიც null არაა იმით შეივსება
+
+            // if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
             if (code == "COM")
             {
                 return new Cicmpy()
@@ -1550,7 +1560,7 @@ namespace ExcelToXML.Controllers
                     isDebnr = false
                 };
             }
-            if (code == "CCO")
+            if (code == "CCO" || description.StartsWith("CCO")) //description-ში  შემოწმება
             {
                 return new Cicmpy()
                 {
@@ -1577,7 +1587,58 @@ namespace ExcelToXML.Controllers
             }; 
 
         }
-        public XmlNode getFinEntryLine(int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId, double? sumAmount = 0)
+
+        public GlAccountCodes getGlAccountCodes(string glAccount)
+        {
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+
+
+            GlAccountCodes glAccountCodes= null ;
+            string queryString =
+                @"select bal_vw,  omzrek, debcrd from grtbk where reknr = @reknr ";
+
+
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@reknr", glAccount.PadLeft(9,' '));
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        glAccountCodes = new GlAccountCodes
+                        {
+                            Type = reader[0].ToString(),
+                            SubType = reader[1].ToString(),
+                            Side = reader[2].ToString(),
+                        };
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+           
+
+            return glAccountCodes;
+        }
+        public XmlNode getFinEntryLine(string division,int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId, double? sumAmount = 0)
         {
             
             //COM დაჯამდება, რეფერენსები იქნება საერთო
@@ -1601,44 +1662,71 @@ namespace ExcelToXML.Controllers
             FinEntryLine.AppendChild(FinPeriod);
 
             var identNumber = worksheet.Cells[i, 16].Value == null? "" : worksheet.Cells[i, 16].Value.ToString();
-        
-            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber);
+            if (worksheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
+            {
+                identNumber = worksheet.Cells[i, 11].Value.ToString();
+            }
 
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber, worksheet.Cells[i, 7].Value.ToString());
 
+            //if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
             var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes);
             
+            if(worksheet.Cells[i, 7].Value.ToString() == "COM")
+            {
+                if (division == "150")
+                {
+                    gLAccountCode = "741011";
+                }
+                else
+                {
+                    gLAccountCode = "747000";
+                }
+            }
+           
+
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
-            if (gLAccountCode == "741011")
-            {
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "K");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
-            }
-            if (gLAccountCode == "311010")
-            {
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
-            }
-            if (gLAccountCode == "141010")
-            {
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "D");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
-            }
-            if (gLAccountCode == "129000")
-            {
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
-            }
-            if (gLAccountCode == "143010")
-            {
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
-                ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
-            }
+            var glAccountCodes = getGlAccountCodes(gLAccountCode);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", glAccountCodes.Type);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", glAccountCodes.SubType);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", glAccountCodes.Side);
+            //if (gLAccountCode == "747000")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "A");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            //}
+            //if (gLAccountCode == "741011")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "K");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            //}
+            //if (gLAccountCode == "311010")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
+            //}
+            //if (gLAccountCode == "141010")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "D");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            //}
+            //if (gLAccountCode == "129000")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
+            //}
+            //if (gLAccountCode == "143010")
+            //{
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
+            //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
+            //}
 
             XmlNode FinEntryLineGLDescription = doc.CreateElement("Description");
             FinEntryLineGLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
