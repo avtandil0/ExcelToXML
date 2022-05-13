@@ -930,7 +930,7 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public string getGLAccountInEntryLine(string code, Cicmpy cicmpy)
+        public string getGLAccountInEntryLine(string code, Cicmpy cicmpy, string description)
         {
 
    //         reknr bal_vw  omzrek debcrd
@@ -944,7 +944,7 @@ namespace ExcelToXML.Controllers
             {
                 return "741011";
             }
-            if (code == "CCO")
+            if (code == "CCO" || description.StartsWith("CCO"))//description
             {
                 return "129000";
             }
@@ -1012,10 +1012,10 @@ namespace ExcelToXML.Controllers
             StatementDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(StatementDate);
 
-            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 7].Value.ToString());
+            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 6].Value.ToString());
 
 
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr);
+            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr, worksheet.Cells[i, 6].Value.ToString());
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
@@ -1494,10 +1494,11 @@ namespace ExcelToXML.Controllers
             Costcenter.AppendChild(CostcenterDescription);
 
             XmlNode CostcenterGLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("code", "719990");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("type", "D");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("subtype", "W");
-            ((XmlElement)CostcenterGLAccount).SetAttribute("side", "K");
+            var glAccounCodes = getGlAccountCodes("719990".PadLeft(9, ' '));
+            ((XmlElement)CostcenterGLAccount).SetAttribute("code", "719990".PadLeft(9, ' '));
+            ((XmlElement)CostcenterGLAccount).SetAttribute("type", glAccounCodes?.Type);
+            ((XmlElement)CostcenterGLAccount).SetAttribute("subtype", glAccounCodes?.SubType);
+            ((XmlElement)CostcenterGLAccount).SetAttribute("side", glAccounCodes?.Side);
 
             XmlNode CostcenterGLAccountGLDescription = doc.CreateElement("Description");
             CostcenterGLAccountGLDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -1506,10 +1507,10 @@ namespace ExcelToXML.Controllers
             Costcenter.AppendChild(CostcenterGLAccount);
 
             XmlNode GLOffset = doc.CreateElement("GLOffset");
-            ((XmlElement)GLOffset).SetAttribute("code", "719990");
-            ((XmlElement)GLOffset).SetAttribute("type", "D");
-            ((XmlElement)GLOffset).SetAttribute("subtype", "W");
-            ((XmlElement)GLOffset).SetAttribute("side", "K");
+            ((XmlElement)GLOffset).SetAttribute("code", "719990".PadLeft(9, ' '));
+            ((XmlElement)GLOffset).SetAttribute("type", glAccounCodes?.Type);
+            ((XmlElement)GLOffset).SetAttribute("subtype", glAccounCodes?.SubType);
+            ((XmlElement)GLOffset).SetAttribute("side", glAccounCodes?.Side);
 
             XmlNode GLOffsetDescription = doc.CreateElement("Description");
             GLOffsetDescription.AppendChild(doc.CreateTextNode("GEL 3406000029"));
@@ -1543,6 +1544,49 @@ namespace ExcelToXML.Controllers
             return GLEntryNode;
         }
 
+        public string getGLAccountCodeFromDB(string crdnr)
+        {
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+            string queryString = "select top 1 CentralizationAccount from cicmpy  where ltrim(rtrim(crdnr))= ltrim(rtrim(@crdnr))";
+
+            string glAccountCode = "";
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@crdnr", crdnr);
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        glAccountCode = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+                //Console.ReadLine();
+            }
+
+
+            return glAccountCode;
+        }
+
         public Cicmpy  getCreditorCode(string code, string identityNymber, string description)
         {
             // CCO -> კრედიტორი 3
@@ -1569,13 +1613,14 @@ namespace ExcelToXML.Controllers
                     isDebnr = false
                 };
             }
-
+            //if 
             var result = getCreditorFromDB(identityNymber);
             //if clasificationid == 300 -> glacount code =143010 
             //
 
             //select bedrnr from bedryf  -> division code
 
+            //if select CentralizationAccount,* from cicmpy  where ltrim(rtrim(crdnr))= '1041' => glaccount-shi
             return new Cicmpy()
             {
                 FromDB = true,
@@ -1667,12 +1712,24 @@ namespace ExcelToXML.Controllers
                 identNumber = worksheet.Cells[i, 11].Value.ToString();
             }
 
-            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber, worksheet.Cells[i, 7].Value.ToString());
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber, worksheet.Cells[i, 6].Value.ToString());
 
             //if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes);
-            
-            if(worksheet.Cells[i, 7].Value.ToString() == "COM")
+
+            var glAccountFromDb = getGLAccountCodeFromDB("  1333");
+
+            string gLAccountCode = "";
+            if (!String.IsNullOrEmpty(glAccountFromDb))
+            {
+                gLAccountCode = glAccountFromDb;
+            }
+            else 
+            { 
+                gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes, worksheet.Cells[i, 6].Value.ToString());
+
+            }
+
+            if (worksheet.Cells[i, 7].Value.ToString() == "COM")
             {
                 if (division == "150")
                 {
@@ -1688,9 +1745,9 @@ namespace ExcelToXML.Controllers
             XmlNode FinEntryLineGLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)FinEntryLineGLAccount).SetAttribute("code", gLAccountCode);
             var glAccountCodes = getGlAccountCodes(gLAccountCode);
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", glAccountCodes.Type);
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", glAccountCodes.SubType);
-            ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", glAccountCodes.Side);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", glAccountCodes?.Type);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", glAccountCodes?.SubType);
+            ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", glAccountCodes?.Side);
             //if (gLAccountCode == "747000")
             //{
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
