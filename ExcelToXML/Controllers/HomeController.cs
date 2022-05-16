@@ -329,27 +329,60 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if (workSheet.Cells[i, 7].Value.ToString() == "COM" || workSheet.Cells[i, 7].Value.ToString() == "CCO"
-                        || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value.ToString()))
+                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
+                        || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value?.ToString()))
                     {
                         continue;
                     }
 
-                    var IdentNumber = workSheet.Cells[i, 16].Value.ToString();
-                    if (workSheet.Cells[i, 16].Value.ToString() == Configuration["VATNumber"].ToString())
+                    var personalNumberInDesc = workSheet.Cells[i, 6].Value?.ToString().Length < 11? "": workSheet.Cells[i, 6].Value?.ToString().Substring(0, 11);
+
+                    try
                     {
-                        IdentNumber = workSheet.Cells[i, 11].Value.ToString();
+                        Int64.Parse(personalNumberInDesc);
+                    }
+                    catch(Exception e)
+                    {
+                        personalNumberInDesc = "";
                     }
 
+
+                    
+                    var IdentNumber = "";
+
+                    if (String.IsNullOrEmpty(personalNumberInDesc))
+                    {
+                        IdentNumber = workSheet.Cells[i, 16].Value?.ToString();
+
+                        if (workSheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
+                        {
+                            IdentNumber = workSheet.Cells[i, 11].Value.ToString();
+                        }
+                    }
+                    else
+                    {
+                        IdentNumber = personalNumberInDesc;
+                    }
+
+                    if (String.IsNullOrEmpty(IdentNumber))
+                    {
+                        ViewBag.error = "შეავსეთ საიდენტიფიკაციო ნომერი ! ხაზი " + i.ToString();
+
+                        var jurnals = getJurnals();
+                        ViewBag.jurnals = jurnals;
+
+                        return View("Index");
+
+                    }
                     notExistInDb.Add(new ExcelData { 
                         ID = Guid.NewGuid(),
-                        StatementNumber = workSheet.Cells[i, 2].Value.ToString(),
+                        StatementNumber = workSheet.Cells[i, 2].Value?.ToString(),
                         Debit = workSheet.Cells[i, 4].Value?.ToString(),
                         Credit = workSheet.Cells[i, 5].Value?.ToString(),
-                        OperationContent = workSheet.Cells[i, 6].Value.ToString().Length < 40? workSheet.Cells[i, 6].Value.ToString()
-                                                : workSheet.Cells[i, 6].Value.ToString()?.Substring(0, 40),
-                        OperationType = workSheet.Cells[i, 7].Value.ToString(),
-                        ReceiverName = workSheet.Cells[i, 15].Value.ToString(),
+                        OperationContent = workSheet.Cells[i, 6].Value?.ToString().Length < 40? workSheet.Cells[i, 6].Value?.ToString()
+                                                : workSheet.Cells[i, 6].Value?.ToString()?.Substring(0, 40),
+                        OperationType = workSheet.Cells[i, 7].Value?.ToString(),
+                        ReceiverName = workSheet.Cells[i, 15].Value?.ToString(),
                         IdentityNumber = IdentNumber,
                     });
                 }
@@ -974,7 +1007,7 @@ namespace ExcelToXML.Controllers
         public string getDesciption(string text)
         {
             var cc = getUnicode(text);
-            return cc.Substring(0, 60);
+            return cc.Length < 60?  cc :  cc.Substring(0, 60);
         }
 
         public XmlNode getBankStatement(int i,XmlDocument doc, ExcelWorksheet worksheet, Guid commonId)
@@ -1706,17 +1739,43 @@ namespace ExcelToXML.Controllers
             ((XmlElement)FinPeriod).SetAttribute("number", DateTime.Parse(d).Month.ToString());
             FinEntryLine.AppendChild(FinPeriod);
 
-            var identNumber = worksheet.Cells[i, 16].Value == null? "" : worksheet.Cells[i, 16].Value.ToString();
-            if (worksheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
+            var personalNumberInDesc = worksheet.Cells[i, 6].Value?.ToString().Length < 11 ? "" : worksheet.Cells[i, 6].Value?.ToString().Substring(0, 11);
+
+            try
             {
-                identNumber = worksheet.Cells[i, 11].Value.ToString();
+                Int64.Parse(personalNumberInDesc);
+            }
+            catch (Exception e)
+            {
+                personalNumberInDesc = "";
             }
 
-            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), identNumber, worksheet.Cells[i, 6].Value.ToString());
+            var IdentNumber = "";
+
+            if (String.IsNullOrEmpty(personalNumberInDesc))
+            {
+                IdentNumber = worksheet.Cells[i, 16].Value?.ToString();
+
+                if (worksheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
+                {
+                    IdentNumber = worksheet.Cells[i, 11].Value.ToString();
+                }
+            }
+            else
+            {
+                IdentNumber = personalNumberInDesc;
+            }
+            //var identNumber = worksheet.Cells[i, 16].Value == null? "" : worksheet.Cells[i, 16].Value.ToString();
+            //if (worksheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
+            //{
+            //    identNumber = worksheet.Cells[i, 11].Value.ToString();
+            //}
+
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), IdentNumber, worksheet.Cells[i, 6].Value.ToString());
 
             //if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
 
-            var glAccountFromDb = getGLAccountCodeFromDB("  1333");
+            var glAccountFromDb = getGLAccountCodeFromDB(creditorRes.Crdnr?? "");
 
             string gLAccountCode = "";
             if (!String.IsNullOrEmpty(glAccountFromDb))
