@@ -1006,6 +1006,23 @@ namespace ExcelToXML.Controllers
 
         public string getDesciption(string text)
         {
+            int indexOfSym = text.IndexOf("შპს");
+            if (indexOfSym >= 0)
+            {
+                text = text.Substring(0, indexOfSym);
+            }
+
+            indexOfSym = text.IndexOf("ი/მ");
+            if (indexOfSym >= 0)
+            {
+                text = text.Substring(0, indexOfSym);
+            }
+
+            indexOfSym = text.IndexOf("სსიპ");
+            if (indexOfSym >= 0)
+            {
+                text = text.Substring(0, indexOfSym);
+            }
             var cc = getUnicode(text);
             return cc.Length < 60?  cc :  cc.Substring(0, 60);
         }
