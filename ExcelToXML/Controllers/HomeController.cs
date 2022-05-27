@@ -329,7 +329,7 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
+                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "FEE" || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
                         || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value?.ToString()))
                     {
                         continue;
@@ -898,7 +898,7 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if(workSheet.Cells[i, 7].Value.ToString() == "COM")
+                    if(workSheet.Cells[i, 7].Value.ToString() == "COM" || workSheet.Cells[i, 7].Value.ToString() == "FEE")
                     {
                         continue;
                     }
@@ -922,7 +922,7 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if (workSheet.Cells[i, 7].Value.ToString() == "COM")
+                    if (workSheet.Cells[i, 7].Value.ToString() == "COM" || workSheet.Cells[i, 7].Value.ToString() == "FEE")
                     {
                         existCOM = true;
                         COMI = i;
@@ -973,7 +973,7 @@ namespace ExcelToXML.Controllers
                //741011   W K   D
 
 
-            if (code == "COM")
+            if (code == "COM" || code == "FEE")
             {
                 return "741011";
             }
@@ -1004,8 +1004,17 @@ namespace ExcelToXML.Controllers
             return res;
         }
 
-        public string getDesciption(string text)
+        public string getDesciption(string text, string code)
         {
+            if(code == "CCO")
+            {
+                text = "კონვერტაცია";
+            }
+            if (code == "COM" || code == "FEE")
+            {
+                text = "საკომისიო";
+            }
+
             int indexOfSym = text.IndexOf("შპს");
             if (indexOfSym >= 0)
             {
@@ -1019,6 +1028,18 @@ namespace ExcelToXML.Controllers
             }
 
             indexOfSym = text.IndexOf("სსიპ");
+            if (indexOfSym >= 0)
+            {
+                text = text.Substring(0, indexOfSym);
+            }
+
+            indexOfSym = text.IndexOf("სს");
+            if (indexOfSym >= 0)
+            {
+                text = text.Substring(0, indexOfSym);
+            }
+
+            indexOfSym = text.IndexOf("ააიპ");
             if (indexOfSym >= 0)
             {
                 text = text.Substring(0, indexOfSym);
@@ -1044,7 +1065,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
             XmlNode Description = doc.CreateElement("Description");
-            Description.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString())));
+            Description.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 7].Value.ToString())));
             BankStatementLine.AppendChild(Description);
 
             var d = worksheet.Cells[i, 1].Value.ToString();
@@ -1645,7 +1666,7 @@ namespace ExcelToXML.Controllers
             // რომელიც null არაა იმით შეივსება
 
             // if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
-            if (code == "COM")
+            if (code == "COM" || code == "FEE")
             {
                 return new Cicmpy()
                 {
@@ -1805,7 +1826,7 @@ namespace ExcelToXML.Controllers
 
             }
 
-            if (worksheet.Cells[i, 7].Value.ToString() == "COM")
+            if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE"))
             {
                 if (division == "150")
                 {
@@ -1868,7 +1889,7 @@ namespace ExcelToXML.Controllers
 
 
             XmlNode FinEntryLineDescription = doc.CreateElement("Description");
-            FinEntryLineDescription.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString())));
+            FinEntryLineDescription.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 7].Value.ToString())));
             FinEntryLine.AppendChild(FinEntryLineDescription);
 
 
@@ -1975,100 +1996,100 @@ namespace ExcelToXML.Controllers
             Credit.AppendChild(doc.CreateTextNode(!String.IsNullOrEmpty(worksheet.Cells[i, 5].Value?.ToString())? worksheet.Cells[i, 5].Value?.ToString() : "0"));
             FinEntryLineAmount.AppendChild(Credit);
 
-            XmlNode VAT = doc.CreateElement("VAT");
-            ((XmlElement)VAT).SetAttribute("code", "0");
-            ((XmlElement)VAT).SetAttribute("type", "B");
-            ((XmlElement)VAT).SetAttribute("vattype", "N");
-            ((XmlElement)VAT).SetAttribute("taxtype", "V");
+            //XmlNode VAT = doc.CreateElement("VAT");
+            //((XmlElement)VAT).SetAttribute("code", "0");
+            //((XmlElement)VAT).SetAttribute("type", "B");
+            //((XmlElement)VAT).SetAttribute("vattype", "N");
+            //((XmlElement)VAT).SetAttribute("taxtype", "V");
 
-            XmlNode VATDescription = doc.CreateElement("Description");
-            VATDescription.AppendChild(doc.CreateTextNode("VAT 0%"));
-            VAT.AppendChild(VATDescription);
+            //XmlNode VATDescription = doc.CreateElement("Description");
+            //VATDescription.AppendChild(doc.CreateTextNode("VAT 0%"));
+            //VAT.AppendChild(VATDescription);
 
-            XmlNode MultiDescriptions = doc.CreateElement("MultiDescriptions");
+            //XmlNode MultiDescriptions = doc.CreateElement("MultiDescriptions");
 
-            XmlNode MultiDescription1 = doc.CreateElement("MultiDescription");
-            ((XmlElement)MultiDescription1).SetAttribute("number", "1");
-            MultiDescription1.AppendChild(doc.CreateTextNode("VAT 0%"));
-            MultiDescriptions.AppendChild(MultiDescription1);
+            //XmlNode MultiDescription1 = doc.CreateElement("MultiDescription");
+            //((XmlElement)MultiDescription1).SetAttribute("number", "1");
+            //MultiDescription1.AppendChild(doc.CreateTextNode("VAT 0%"));
+            //MultiDescriptions.AppendChild(MultiDescription1);
 
-            XmlNode MultiDescription2 = doc.CreateElement("MultiDescription");
-            ((XmlElement)MultiDescription2).SetAttribute("number", "2");
-            MultiDescription2.AppendChild(doc.CreateTextNode("VAT 0%"));
-            MultiDescriptions.AppendChild(MultiDescription2);
+            //XmlNode MultiDescription2 = doc.CreateElement("MultiDescription");
+            //((XmlElement)MultiDescription2).SetAttribute("number", "2");
+            //MultiDescription2.AppendChild(doc.CreateTextNode("VAT 0%"));
+            //MultiDescriptions.AppendChild(MultiDescription2);
 
-            XmlNode MultiDescription3 = doc.CreateElement("MultiDescription");
-            ((XmlElement)MultiDescription3).SetAttribute("number", "3");
-            MultiDescription3.AppendChild(doc.CreateTextNode("VAT 0%"));
-            MultiDescriptions.AppendChild(MultiDescription3);
+            //XmlNode MultiDescription3 = doc.CreateElement("MultiDescription");
+            //((XmlElement)MultiDescription3).SetAttribute("number", "3");
+            //MultiDescription3.AppendChild(doc.CreateTextNode("VAT 0%"));
+            //MultiDescriptions.AppendChild(MultiDescription3);
 
-            XmlNode MultiDescription4 = doc.CreateElement("MultiDescription");
-            ((XmlElement)MultiDescription4).SetAttribute("number", "4");
-            MultiDescription4.AppendChild(doc.CreateTextNode("VAT 0%"));
-            MultiDescriptions.AppendChild(MultiDescription4);
+            //XmlNode MultiDescription4 = doc.CreateElement("MultiDescription");
+            //((XmlElement)MultiDescription4).SetAttribute("number", "4");
+            //MultiDescription4.AppendChild(doc.CreateTextNode("VAT 0%"));
+            //MultiDescriptions.AppendChild(MultiDescription4);
 
-            VAT.AppendChild(MultiDescriptions);
-
-
-            XmlNode Percentage = doc.CreateElement("Percentage");
-            Percentage.AppendChild(doc.CreateTextNode("0"));
-            VAT.AppendChild(Percentage);
-
-            XmlNode Charged = doc.CreateElement("Charged");
-            Charged.AppendChild(doc.CreateTextNode("0"));
-            VAT.AppendChild(Charged);
-
-            XmlNode VATExemption = doc.CreateElement("VATExemption");
-            VATExemption.AppendChild(doc.CreateTextNode("0"));
-            VAT.AppendChild(VATExemption);
-
-            XmlNode ExtraDutyPercentage = doc.CreateElement("ExtraDutyPercentage");
-            ExtraDutyPercentage.AppendChild(doc.CreateTextNode("0"));
-            VAT.AppendChild(ExtraDutyPercentage);
+            //VAT.AppendChild(MultiDescriptions);
 
 
+            //XmlNode Percentage = doc.CreateElement("Percentage");
+            //Percentage.AppendChild(doc.CreateTextNode("0"));
+            //VAT.AppendChild(Percentage);
 
-            XmlNode GLToPay = doc.CreateElement("GLToPay");
-            ((XmlElement)GLToPay).SetAttribute("code", "   333010");
-            ((XmlElement)GLToPay).SetAttribute("side", "C");
-            ((XmlElement)GLToPay).SetAttribute("type", "B");
-            ((XmlElement)GLToPay).SetAttribute("subtype", "C");
+            //XmlNode Charged = doc.CreateElement("Charged");
+            //Charged.AppendChild(doc.CreateTextNode("0"));
+            //VAT.AppendChild(Charged);
 
-            XmlNode GLToPayDescription = doc.CreateElement("Description");
-            GLToPayDescription.AppendChild(doc.CreateTextNode("|^~^&#1031;^&#1118;~&#166;&#1106;&#1107; ~&#1116;|0"));
-            GLToPay.AppendChild(GLToPayDescription);
+            //XmlNode VATExemption = doc.CreateElement("VATExemption");
+            //VATExemption.AppendChild(doc.CreateTextNode("0"));
+            //VAT.AppendChild(VATExemption);
 
-            VAT.AppendChild(GLToPay);
+            //XmlNode ExtraDutyPercentage = doc.CreateElement("ExtraDutyPercentage");
+            //ExtraDutyPercentage.AppendChild(doc.CreateTextNode("0"));
+            //VAT.AppendChild(ExtraDutyPercentage);
 
-            XmlNode GLToClaim = doc.CreateElement("GLToClaim");
-            ((XmlElement)GLToClaim).SetAttribute("code", "   333010");
-            ((XmlElement)GLToClaim).SetAttribute("side", "C");
-            ((XmlElement)GLToClaim).SetAttribute("type", "B");
-            ((XmlElement)GLToClaim).SetAttribute("subtype", "C");
 
-            XmlNode GLToClaimDescription = doc.CreateElement("Description");
-            GLToClaimDescription.AppendChild(doc.CreateTextNode("|^~^&#1031;^&#1118;~&#166;&#1106;&#1107; ~&#1116;|0"));
-            GLToClaim.AppendChild(GLToClaimDescription);
 
-            VAT.AppendChild(GLToClaim);
+            //XmlNode GLToPay = doc.CreateElement("GLToPay");
+            //((XmlElement)GLToPay).SetAttribute("code", "   333010");
+            //((XmlElement)GLToPay).SetAttribute("side", "C");
+            //((XmlElement)GLToPay).SetAttribute("type", "B");
+            //((XmlElement)GLToPay).SetAttribute("subtype", "C");
 
-            XmlNode VATCreditor = doc.CreateElement("Creditor");
-            ((XmlElement)VATCreditor).SetAttribute("code", "        1");
-            ((XmlElement)VATCreditor).SetAttribute("number", "        1");
-            ((XmlElement)VATCreditor).SetAttribute("type", "S");
+            //XmlNode GLToPayDescription = doc.CreateElement("Description");
+            //GLToPayDescription.AppendChild(doc.CreateTextNode("|^~^&#1031;^&#1118;~&#166;&#1106;&#1107; ~&#1116;|0"));
+            //GLToPay.AppendChild(GLToPayDescription);
 
-            XmlNode VATCreditorName = doc.CreateElement("Name");
-            VATCreditorName.AppendChild(doc.CreateTextNode("VAT Creditor"));
-            VATCreditor.AppendChild(VATCreditorName);
+            //VAT.AppendChild(GLToPay);
 
-            VAT.AppendChild(VATCreditor);
+            //XmlNode GLToClaim = doc.CreateElement("GLToClaim");
+            //((XmlElement)GLToClaim).SetAttribute("code", "   333010");
+            //((XmlElement)GLToClaim).SetAttribute("side", "C");
+            //((XmlElement)GLToClaim).SetAttribute("type", "B");
+            //((XmlElement)GLToClaim).SetAttribute("subtype", "C");
 
-            XmlNode PaymentPeriod = doc.CreateElement("PaymentPeriod");
-            PaymentPeriod.AppendChild(doc.CreateTextNode("M"));
+            //XmlNode GLToClaimDescription = doc.CreateElement("Description");
+            //GLToClaimDescription.AppendChild(doc.CreateTextNode("|^~^&#1031;^&#1118;~&#166;&#1106;&#1107; ~&#1116;|0"));
+            //GLToClaim.AppendChild(GLToClaimDescription);
 
-            VAT.AppendChild(PaymentPeriod);
+            //VAT.AppendChild(GLToClaim);
 
-            FinEntryLineAmount.AppendChild(VAT);
+            //XmlNode VATCreditor = doc.CreateElement("Creditor");
+            //((XmlElement)VATCreditor).SetAttribute("code", "        1");
+            //((XmlElement)VATCreditor).SetAttribute("number", "        1");
+            //((XmlElement)VATCreditor).SetAttribute("type", "S");
+
+            //XmlNode VATCreditorName = doc.CreateElement("Name");
+            //VATCreditorName.AppendChild(doc.CreateTextNode("VAT Creditor"));
+            //VATCreditor.AppendChild(VATCreditorName);
+
+            //VAT.AppendChild(VATCreditor);
+
+            //XmlNode PaymentPeriod = doc.CreateElement("PaymentPeriod");
+            //PaymentPeriod.AppendChild(doc.CreateTextNode("M"));
+
+            //VAT.AppendChild(PaymentPeriod);
+
+            //FinEntryLineAmount.AppendChild(VAT);
             FinEntryLine.AppendChild(FinEntryLineAmount);
 
 
