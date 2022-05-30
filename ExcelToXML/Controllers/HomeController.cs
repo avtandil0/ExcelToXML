@@ -323,6 +323,8 @@ namespace ExcelToXML.Controllers
 
                 List<ExcelData> notExistInDb = new List<ExcelData>() { };
 
+                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
+
                 for (int i = 14; i <= rowLength; i++)
                 {
                     if (workSheet.Cells[i, 1].Value == null)
@@ -331,6 +333,11 @@ namespace ExcelToXML.Controllers
                     }
                     if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "FEE" || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
                         || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value?.ToString()))
+                    {
+                        continue;
+                    }
+
+                    if (TColumnStrings.Any(r => r == workSheet.Cells[i, 20].Value?.ToString()))
                     {
                         continue;
                     }
@@ -357,6 +364,10 @@ namespace ExcelToXML.Controllers
                         if (workSheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
                         {
                             IdentNumber = workSheet.Cells[i, 11].Value.ToString();
+                        }
+                        if (TColumnStrings.Any(r => r == workSheet.Cells[i, 20].Value?.ToString()))
+                        {
+                            IdentNumber = Configuration["TColumnCreditor"].ToString();
                         }
                     }
                     else
@@ -1012,38 +1023,23 @@ namespace ExcelToXML.Controllers
             }
             if (code == "COM" || code == "FEE")
             {
-                text = "საკომისიო";
+                text = "ბანკის საკომისიო";
             }
 
-            int indexOfSym = text.IndexOf("შპს");
-            if (indexOfSym >= 0)
+
+            List<string> strings = Configuration.GetSection("DescriptionStopStrings").Get<List<string>>();
+
+            int indexOfSym = -1;
+            foreach (var item in strings)
             {
-                text = text.Substring(0, indexOfSym);
+                indexOfSym = text.IndexOf(item);
+                if (indexOfSym >= 0)
+                {
+                    text = text.Substring(0, indexOfSym);
+                }
             }
 
-            indexOfSym = text.IndexOf("ი/მ");
-            if (indexOfSym >= 0)
-            {
-                text = text.Substring(0, indexOfSym);
-            }
-
-            indexOfSym = text.IndexOf("სსიპ");
-            if (indexOfSym >= 0)
-            {
-                text = text.Substring(0, indexOfSym);
-            }
-
-            indexOfSym = text.IndexOf("სს");
-            if (indexOfSym >= 0)
-            {
-                text = text.Substring(0, indexOfSym);
-            }
-
-            indexOfSym = text.IndexOf("ააიპ");
-            if (indexOfSym >= 0)
-            {
-                text = text.Substring(0, indexOfSym);
-            }
+           
             var cc = getUnicode(text);
             return cc.Length < 60?  cc :  cc.Substring(0, 60);
         }
@@ -1761,7 +1757,9 @@ namespace ExcelToXML.Controllers
             XmlNode FinEntryLine = doc.CreateElement("FinEntryLine");
             ((XmlElement)FinEntryLine).SetAttribute("number", (i-13).ToString());
             ((XmlElement)FinEntryLine).SetAttribute("type", "N");
-            ((XmlElement)FinEntryLine).SetAttribute("subtype", "Z");
+
+            var finEntryLineSubType = String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? "Y" : " Z";
+            ((XmlElement)FinEntryLine).SetAttribute("subtype", finEntryLineSubType);
 
             XmlNode Date = doc.CreateElement("Date");
             var d = worksheet.Cells[i, 1].Value.ToString();
