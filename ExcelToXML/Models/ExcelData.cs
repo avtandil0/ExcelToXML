@@ -15,5 +15,6 @@ namespace ExcelToXML.Models
         public string OperationType { get; set; }
         public string ReceiverName { get; set; }
         public string IdentityNumber { get; set; }
+        public string Destination { get; set; }
     }
 }

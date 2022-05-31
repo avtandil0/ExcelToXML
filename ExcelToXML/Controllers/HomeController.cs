@@ -337,10 +337,10 @@ namespace ExcelToXML.Controllers
                         continue;
                     }
 
-                    if (TColumnStrings.Any(r => r == workSheet.Cells[i, 20].Value?.ToString()))
-                    {
-                        continue;
-                    }
+                    //if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                    //{
+                    //    continue;
+                    //}
 
                     var personalNumberInDesc = workSheet.Cells[i, 6].Value?.ToString().Length < 11? "": workSheet.Cells[i, 6].Value?.ToString().Substring(0, 11);
 
@@ -365,7 +365,7 @@ namespace ExcelToXML.Controllers
                         {
                             IdentNumber = workSheet.Cells[i, 11].Value.ToString();
                         }
-                        if (TColumnStrings.Any(r => r == workSheet.Cells[i, 20].Value?.ToString()))
+                        if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
                         {
                             IdentNumber = Configuration["TColumnCreditor"].ToString();
                         }
@@ -395,6 +395,8 @@ namespace ExcelToXML.Controllers
                         OperationType = workSheet.Cells[i, 7].Value?.ToString(),
                         ReceiverName = workSheet.Cells[i, 15].Value?.ToString(),
                         IdentityNumber = IdentNumber,
+                        Destination = workSheet.Cells[i, 20].Value?.ToString().Length < 20 ? workSheet.Cells[i, 20].Value?.ToString()
+                                                : workSheet.Cells[i, 20].Value?.ToString()?.Substring(0, 20),
                     });
                 }
 
@@ -419,6 +421,7 @@ namespace ExcelToXML.Controllers
                             OperationType = d.OperationType,
                             ReceiverName = d.ReceiverName,
                             IdentityNumber = d.IdentityNumber,
+                            Destination = d.Destination
                         });
                     }
 
@@ -901,6 +904,9 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLOffset).SetAttribute("code", "   129000");
                 BankStatement.AppendChild(GLOffset);
 
+                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
+
+
                 var comIndex = 0;
                 var invNumber = Int32.Parse(invoiceNumber);
                 for (int i = 14; i <= rowLength; i++)
@@ -910,6 +916,11 @@ namespace ExcelToXML.Controllers
                         break;
                     }
                     if(workSheet.Cells[i, 7].Value.ToString() == "COM" || workSheet.Cells[i, 7].Value.ToString() == "FEE")
+                    {
+                        continue;
+                    }
+
+                    if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
                     {
                         continue;
                     }
@@ -952,7 +963,38 @@ namespace ExcelToXML.Controllers
                     var FinEntryLine = getFinEntryLine(division,COMI, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmount);
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
-                
+
+                //TColumnStrings
+                double sumAmountForT = 0;
+                var existT = false;
+                var TIndex = 0;
+                for (int i = 14; i <= rowLength; i++)
+                {
+                    if (workSheet.Cells[i, 1].Value == null)
+                    {
+                        break;
+                    }
+                    if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                    {
+                        existT = true;
+                        TIndex = i;
+                        sumAmountForT += Double.Parse(workSheet.Cells[i, 4].Value.ToString());
+                    }
+
+
+
+                    // var BankStatementLine = getBankStatement(i, doc, workSheet, commonId);
+                    // BankStatement.AppendChild(BankStatementLine);
+                }
+
+                if (existT == true)
+                {
+                    invNumber++;
+                    var FinEntryLine = getFinEntryLine(division, TIndex, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmountForT);
+                    GLEntryNode.AppendChild(FinEntryLine);
+                }
+
+
 
 
                 // var PaymentTerms = getPaymentTerms(doc);
@@ -1788,13 +1830,21 @@ namespace ExcelToXML.Controllers
 
             var IdentNumber = "";
 
+            List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
+
+
             if (String.IsNullOrEmpty(personalNumberInDesc))
             {
                 IdentNumber = worksheet.Cells[i, 16].Value?.ToString();
 
                 if (worksheet.Cells[i, 16].Value?.ToString() == Configuration["VATNumber"].ToString())
                 {
+
                     IdentNumber = worksheet.Cells[i, 11].Value.ToString();
+                }
+                if (TColumnStrings.Any(r => r.Replace(" ", "") == worksheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                {
+                    IdentNumber = Configuration["TColumnCreditor"].ToString();
                 }
             }
             else
