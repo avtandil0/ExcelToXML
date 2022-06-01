@@ -1062,29 +1062,36 @@ namespace ExcelToXML.Controllers
             return res;
         }
 
-        public string getDesciption(string text, string code)
+        public string getDesciption(string text, string code, string recipientName)
         {
             if(code == "CCO" )
             {
                 text = "კონვერტაცია";
             }
+
             if (code == "COM" || code == "FEE")
             {
                 text = "ბანკის საკომისიო";
             }
 
-
-            List<string> strings = Configuration.GetSection("DescriptionStopStrings").Get<List<string>>();
-
             int indexOfSym = -1;
-            foreach (var item in strings)
+            indexOfSym = text.IndexOf(recipientName);
+            if (indexOfSym >= 0)
             {
-                indexOfSym = text.IndexOf(item);
-                if (indexOfSym >= 0)
-                {
-                    text = text.Substring(0, indexOfSym);
-                }
+                text = text.Substring(0, indexOfSym);
             }
+
+            //List<string> strings = Configuration.GetSection("DescriptionStopStrings").Get<List<string>>();
+
+            //int indexOfSym = -1;
+            //foreach (var item in strings)
+            //{
+            //    indexOfSym = text.IndexOf(item);
+            //    if (indexOfSym >= 0)
+            //    {
+            //        text = text.Substring(0, indexOfSym);
+            //    }
+            //}
 
            
             var cc = getUnicode(text);
@@ -1108,7 +1115,9 @@ namespace ExcelToXML.Controllers
             ((XmlElement)BankStatementLine).SetAttribute("paymentType", "B");
 
             XmlNode Description = doc.CreateElement("Description");
-            Description.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 7].Value.ToString())));
+            Description.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(),
+                                                                        worksheet.Cells[i, 7].Value.ToString(),
+                                                                        worksheet.Cells[i, 15].Value.ToString())));
             BankStatementLine.AppendChild(Description);
 
             var d = worksheet.Cells[i, 1].Value.ToString();
@@ -1950,7 +1959,9 @@ namespace ExcelToXML.Controllers
 
 
             XmlNode FinEntryLineDescription = doc.CreateElement("Description");
-            FinEntryLineDescription.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 7].Value.ToString())));
+            FinEntryLineDescription.AppendChild(doc.CreateTextNode(getDesciption(worksheet.Cells[i, 6].Value.ToString(),
+                                                                                 worksheet.Cells[i, 7].Value.ToString(),
+                                                                                 worksheet.Cells[i, 15].Value.ToString())));
             FinEntryLine.AppendChild(FinEntryLineDescription);
 
 
