@@ -323,7 +323,7 @@ namespace ExcelToXML.Controllers
 
                 List<ExcelData> notExistInDb = new List<ExcelData>() { };
 
-                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
+                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>() ?? new List<string> ();
 
                 for (int i = 14; i <= rowLength; i++)
                 {
@@ -908,7 +908,7 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLOffset).SetAttribute("code", "   129000");
                 BankStatement.AppendChild(GLOffset);
 
-                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
+                List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>() ?? new List<string>(); ;
 
 
                 var comIndex = 0;
