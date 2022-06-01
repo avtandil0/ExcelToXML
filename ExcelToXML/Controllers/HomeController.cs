@@ -331,16 +331,20 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "FEE" || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
+                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "FEE" 
+                        || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
+
+                        || workSheet.Cells[i, 6].Value?.ToString().StartsWith("CCO") == true
+
                         || String.IsNullOrEmpty( workSheet.Cells[i, 1].Value?.ToString()))
                     {
                         continue;
                     }
 
-                    //if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
-                    //{
-                    //    continue;
-                    //}
+                    if (TColumnStrings.Any(r => r.ToLower().Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().ToLower().Replace(" ", "")))
+                    {
+                        continue;
+                    }
 
                     var personalNumberInDesc = workSheet.Cells[i, 6].Value?.ToString().Length < 11? "": workSheet.Cells[i, 6].Value?.ToString().Substring(0, 11);
 
@@ -365,9 +369,9 @@ namespace ExcelToXML.Controllers
                         {
                             IdentNumber = workSheet.Cells[i, 11].Value.ToString();
                         }
-                        if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                        if (TColumnStrings.Any(r => r.ToLower().Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().ToLower().Replace(" ", "")))
                         {
-                            IdentNumber = Configuration["TColumnCreditor"].ToString();
+                            continue;
                         }
                     }
                     else
@@ -920,7 +924,7 @@ namespace ExcelToXML.Controllers
                         continue;
                     }
 
-                    if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                    if (TColumnStrings.Any(r => r.ToLower().Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().ToLower().Replace(" ", "")))
                     {
                         continue;
                     }
@@ -974,7 +978,7 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
-                    if (TColumnStrings.Any(r => r.Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
+                    if (TColumnStrings.Any(r => r.ToLower().Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().ToLower().Replace(" ", "")))
                     {
                         existT = true;
                         TIndex = i;
@@ -990,7 +994,7 @@ namespace ExcelToXML.Controllers
                 if (existT == true)
                 {
                     invNumber++;
-                    var FinEntryLine = getFinEntryLine(division, TIndex, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmountForT);
+                    var FinEntryLine = getFinEntryLine(division, TIndex, doc, workSheet, invNumber.ToString(), Guid.NewGuid(), sumAmountForT, true);
                     GLEntryNode.AppendChild(FinEntryLine);
                 }
 
@@ -1059,7 +1063,7 @@ namespace ExcelToXML.Controllers
 
         public string getDesciption(string text, string code)
         {
-            if(code == "CCO")
+            if(code == "CCO" )
             {
                 text = "კონვერტაცია";
             }
@@ -1121,7 +1125,7 @@ namespace ExcelToXML.Controllers
             StatementDate.AppendChild(doc.CreateTextNode(dateFormated));
             BankStatementLine.AppendChild(StatementDate);
 
-            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 6].Value.ToString());
+            var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 6].Value.ToString(), false);
 
 
             var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr, worksheet.Cells[i, 6].Value.ToString());
@@ -1696,7 +1700,7 @@ namespace ExcelToXML.Controllers
             return glAccountCode;
         }
 
-        public Cicmpy  getCreditorCode(string code, string identityNymber, string description)
+        public Cicmpy  getCreditorCode(string code, string identityNymber, string description, bool isSum)
         {
             // CCO -> კრედიტორი 3
             // COM -> კრედიტორი 4
@@ -1704,6 +1708,18 @@ namespace ExcelToXML.Controllers
             // რომელიც null არაა იმით შეივსება
 
             // if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
+
+            if (isSum)
+            {
+                string TColumnCreditor = Configuration["TColumnCreditor"].ToString();
+                return new Cicmpy()
+                {
+                    DefaultCode = TColumnCreditor,
+                    FromDB = false,
+                    isDebnr = false
+                };
+            }
+
             if (code == "COM" || code == "FEE")
             {
                 return new Cicmpy()
@@ -1792,7 +1808,8 @@ namespace ExcelToXML.Controllers
 
             return glAccountCodes;
         }
-        public XmlNode getFinEntryLine(string division,int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber, Guid commonId, double? sumAmount = 0)
+        public XmlNode getFinEntryLine(string division,int i, XmlDocument doc, ExcelWorksheet worksheet,string  invoiceNumber,
+            Guid commonId, double? sumAmount = 0, bool isSum = false)
         {
             
             //COM დაჯამდება, რეფერენსები იქნება საერთო
@@ -1830,7 +1847,6 @@ namespace ExcelToXML.Controllers
 
             var IdentNumber = "";
 
-            List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>();
 
 
             if (String.IsNullOrEmpty(personalNumberInDesc))
@@ -1841,10 +1857,6 @@ namespace ExcelToXML.Controllers
                 {
 
                     IdentNumber = worksheet.Cells[i, 11].Value.ToString();
-                }
-                if (TColumnStrings.Any(r => r.Replace(" ", "") == worksheet.Cells[i, 20].Value?.ToString().Replace(" ", "")))
-                {
-                    IdentNumber = Configuration["TColumnCreditor"].ToString();
                 }
             }
             else
@@ -1857,7 +1869,7 @@ namespace ExcelToXML.Controllers
             //    identNumber = worksheet.Cells[i, 11].Value.ToString();
             //}
 
-            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), IdentNumber, worksheet.Cells[i, 6].Value.ToString());
+            var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), IdentNumber, worksheet.Cells[i, 6].Value.ToString(), isSum);
 
             //if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
 
