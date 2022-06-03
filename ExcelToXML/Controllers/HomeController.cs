@@ -1074,26 +1074,30 @@ namespace ExcelToXML.Controllers
                 text = "ბანკის საკომისიო";
             }
 
+            List<string> strings = Configuration.GetSection("DescriptionStopStrings").Get<List<string>>();
+
             int indexOfSym = -1;
             indexOfSym = text.IndexOf(recipientName);
             if (indexOfSym >= 0)
             {
                 text = text.Substring(0, indexOfSym);
             }
+            else
+            {
+                indexOfSym = -1;
+                foreach (var item in strings)
+                {
+                    indexOfSym = text.IndexOf(item);
+                    if (indexOfSym >= 0)
+                    {
+                        text = text.Substring(0, indexOfSym);
+                    }
+                }
+            }
 
-            //List<string> strings = Configuration.GetSection("DescriptionStopStrings").Get<List<string>>();
 
-            //int indexOfSym = -1;
-            //foreach (var item in strings)
-            //{
-            //    indexOfSym = text.IndexOf(item);
-            //    if (indexOfSym >= 0)
-            //    {
-            //        text = text.Substring(0, indexOfSym);
-            //    }
-            //}
 
-           
+
             var cc = getUnicode(text);
             return cc.Length < 60?  cc :  cc.Substring(0, 60);
         }
