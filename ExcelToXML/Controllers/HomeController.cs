@@ -824,6 +824,52 @@ namespace ExcelToXML.Controllers
             return Cicmpy;
         }
 
+        public bool checkIfExist(string target)
+        {
+
+            string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
+
+            string queryString = "select top 1 ordernr from orkrg where ordernr=@target";
+
+            var res = "";
+
+            using (SqlConnection connection =
+                new SqlConnection(connectionString))
+            {
+                // Create the Command and Parameter objects.
+                SqlCommand command = new SqlCommand(queryString, connection);
+
+                command.Parameters.AddWithValue("@target", target);
+
+                SqlCommand command1 = new SqlCommand(queryString, connection);
+
+
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        res = reader[0].ToString();
+                    }
+
+                    reader.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+
+            if (String.IsNullOrEmpty(res))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public string getDivision()
         {
 
@@ -2039,6 +2085,57 @@ namespace ExcelToXML.Controllers
             Resource.AppendChild(FirstName);
 
             FinEntryLine.AppendChild(Resource);
+
+            var codeForProject = "";
+            var rowDescription = worksheet.Cells[i, 6].Value.ToString();
+            try
+            {
+                int startInd = rowDescription.IndexOf('[');
+                int endInd = rowDescription.IndexOf(']') - startInd;
+                codeForProject = rowDescription.Substring(startInd + 1, endInd - 1);
+                bool exist = checkIfExist(codeForProject);
+                if (!exist)
+                {
+                    codeForProject = "";
+                }
+            }
+            catch(Exception e)
+            {
+                codeForProject = "";
+            }
+
+            if (!String.IsNullOrEmpty(codeForProject))
+            {
+                XmlNode Project = doc.CreateElement("Project");
+                ((XmlElement)Project).SetAttribute("code", codeForProject);
+                ((XmlElement)Project).SetAttribute("type", "I");
+                ((XmlElement)Project).SetAttribute("status", "P");
+
+                XmlNode projectDescr = doc.CreateElement("Description");
+                projectDescr.AppendChild(doc.CreateTextNode(codeForProject));
+                Project.AppendChild(projectDescr);
+
+                XmlNode projectSecurityLevel = doc.CreateElement("SecurityLevel");
+                projectSecurityLevel.AppendChild(doc.CreateTextNode("10"));
+                Project.AppendChild(projectSecurityLevel);
+
+                XmlNode projectDateStart = doc.CreateElement("DateStart");
+                projectDateStart.AppendChild(doc.CreateTextNode(DateTime.Now.ToString("yyyy-MM-dd")));
+                Project.AppendChild(projectDateStart);
+
+                XmlNode projectDateEnd = doc.CreateElement("DateEnd");
+                projectDateEnd.AppendChild(doc.CreateTextNode(DateTime.Now.ToString("yyyy-MM-dd")));
+                Project.AppendChild(projectDateEnd);
+
+                XmlNode projectAssortment = doc.CreateElement("Assortment");
+                ((XmlElement)projectAssortment).SetAttribute("code", "-1");
+                Project.AppendChild(projectAssortment);
+
+                FinEntryLine.AppendChild(Project);
+            }
+
+            
+
 
             XmlNode Quantity = doc.CreateElement("Quantity");
             Quantity.AppendChild(doc.CreateTextNode("0"));
