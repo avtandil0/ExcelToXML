@@ -1831,7 +1831,7 @@ namespace ExcelToXML.Controllers
             ((XmlElement)FinEntryLine).SetAttribute("number", (i-13).ToString());
             ((XmlElement)FinEntryLine).SetAttribute("type", "N");
 
-            var finEntryLineSubType = String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? "Y" : " Z";
+            var finEntryLineSubType = !String.IsNullOrEmpty(worksheet.Cells[i, 4].Value?.ToString()) ? "Y" : " Z";
             ((XmlElement)FinEntryLine).SetAttribute("subtype", finEntryLineSubType);
 
             XmlNode Date = doc.CreateElement("Date");
