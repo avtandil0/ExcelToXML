@@ -2087,7 +2087,7 @@ namespace ExcelToXML.Controllers
             FinEntryLine.AppendChild(Resource);
 
             var codeForProject = "";
-            var rowDescription = worksheet.Cells[i, 6].Value.ToString();
+            var rowDescription = worksheet.Cells[i, 21].Value.ToString();
             try
             {
                 int startInd = rowDescription.IndexOf('[');
@@ -2132,9 +2132,17 @@ namespace ExcelToXML.Controllers
                 Project.AppendChild(projectAssortment);
 
                 FinEntryLine.AppendChild(Project);
+
+                XmlNode Payment = doc.CreateElement("Payment");
+
+                XmlNode PaymentTransN = doc.CreateElement("TransactionNumberSubAdministration");
+                PaymentTransN.AppendChild(doc.CreateTextNode(codeForProject));
+                Payment.AppendChild(PaymentTransN);
+
+                FinEntryLine.AppendChild(Payment);
             }
 
-            
+
 
 
             XmlNode Quantity = doc.CreateElement("Quantity");
