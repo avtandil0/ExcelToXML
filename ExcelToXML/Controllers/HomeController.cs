@@ -1025,6 +1025,15 @@ namespace ExcelToXML.Controllers
                     {
                         break;
                     }
+                    if (workSheet.Cells[i, 7].Value?.ToString() == "COM" || workSheet.Cells[i, 7].Value?.ToString() == "FEE"
+                        || workSheet.Cells[i, 7].Value?.ToString() == "CCO"
+
+                        || workSheet.Cells[i, 6].Value?.ToString().StartsWith("CCO") == true
+
+                        || String.IsNullOrEmpty(workSheet.Cells[i, 1].Value?.ToString()))
+                    {
+                        continue;
+                    }
                     if (TColumnStrings.Any(r => r.ToLower().Replace(" ", "") == workSheet.Cells[i, 20].Value?.ToString().ToLower().Replace(" ", "")))
                     {
                         existT = true;
@@ -1948,7 +1957,7 @@ namespace ExcelToXML.Controllers
 
             if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE"))
             {
-                if (division == "150")
+                if (division == "150" || division == "222" )
                 {
                     gLAccountCode = "741011";
                 }
