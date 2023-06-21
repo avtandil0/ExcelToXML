@@ -1081,7 +1081,7 @@ namespace ExcelToXML.Controllers
 
    //         reknr bal_vw  omzrek debcrd
                //129000   B C   D
-               //141010   B D   D
+               //149110   B D   D
                //311010   B C   C
                //741011   W K   D
 
@@ -1096,7 +1096,7 @@ namespace ExcelToXML.Controllers
             }
             if(cicmpy.isDebnr == true)
             {
-                return "141010";
+                return "149110";
             }
 
             if(cicmpy.ClassificationId == "300")
@@ -1104,10 +1104,10 @@ namespace ExcelToXML.Controllers
                 return "143010";
             }
 
-            //თუ დებიტორი მაშინ  return '141010'
-            return "311010";
+            //თუ დებიტორი მაშინ  return '149110'
+            return "312001";
 
-            //cicmpy debnr is not null => '141010'
+            //cicmpy debnr is not null => '149110'
         }
 
         public string getUnicode(string text)
@@ -1204,7 +1204,7 @@ namespace ExcelToXML.Controllers
 
 
             //129000   B C   D
-            //141010   B D   D
+            //149110   B D   D
             //311010   B C   C
             //741011   W K   D
 
@@ -1214,13 +1214,13 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLAccount).SetAttribute("subtype", "K");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
-            if (gLAccountCode == "311010")
+            if (gLAccountCode == "312001")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "C");
             }
-            if (gLAccountCode == "141010")
+            if (gLAccountCode == "149110")//149110
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "D");
@@ -1992,7 +1992,7 @@ namespace ExcelToXML.Controllers
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
             //}
-            //if (gLAccountCode == "141010")
+            //if (gLAccountCode == "149110")
             //{
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "D");
