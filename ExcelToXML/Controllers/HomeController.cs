@@ -140,103 +140,103 @@ namespace ExcelToXML.Controllers
                 switch ((int)str[i])
                 {
                     case 4304:
-                        tmp += (char)(94);
+                        tmp += (char)(192);
                         break;
                     case 4305:
-                        tmp += (char)(96);
+                        tmp += (char)(193);
                         break;
                     case 4306:
-                        tmp += (char)(124);
+                        tmp += (char)(194);
                         break;
                     case 4307:
-                        tmp += (char)(126);
+                        tmp += (char)(195);
                         break;
                     case 4308:
-                        tmp += (char)(166);
+                        tmp += (char)(196);
                         break;
                     case 4309:
-                        tmp += (char)(164);
+                        tmp += (char)(197);
                         break;
                     case 4310:
-                        tmp += (char)(1169);
+                        tmp += (char)(198);
                         break;
                     case 4311:
-                        tmp += (char)(1027);
+                        tmp += (char)(200);
                         break;
                     case 4312:
-                        tmp += (char)(1107);
+                        tmp += (char)(201);
                         break;
                     case 4313:
-                        tmp += (char)(1026);
+                        tmp += (char)(202);
                         break;
                     case 4314:
-                        tmp += (char)(1106);
+                        tmp += (char)(203);
                         break;
                     case 4315:
-                        tmp += (char)(1028);
+                        tmp += (char)(204);
                         break;
                     case 4316:
-                        tmp += (char)(1108);
+                        tmp += (char)(205);
                         break;
                     case 4317:
-                        tmp += (char)(1029);
+                        tmp += (char)(207);
                         break;
                     case 4318:
-                        tmp += (char)(1109);
+                        tmp += (char)(208);
                         break;
                     case 4319:
-                        tmp += (char)(1030);
+                        tmp += (char)(209);
                         break;
                     case 4320:
-                        tmp += (char)(1110);
+                        tmp += (char)(210);
                         break;
                     case 4321:
-                        tmp += (char)(1031);
+                        tmp += (char)(211);
                         break;
                     case 4322:
-                        tmp += (char)(1111);
+                        tmp += (char)(212);
                         break;
                     case 4323:
-                        tmp += (char)(1032);
+                        tmp += (char)(214);
                         break;
                     case 4324:
-                        tmp += (char)(1112);
+                        tmp += (char)(215);
                         break;
                     case 4325:
-                        tmp += (char)(1036);
+                        tmp += (char)(216);
                         break;
                     case 4326:
-                        tmp += (char)(1116);
+                        tmp += (char)(217);
                         break;
                     case 4327:
-                        tmp += (char)(1033);
+                        tmp += (char)(218);
                         break;
                     case 4328:
-                        tmp += (char)(1113);
+                        tmp += (char)(219);
                         break;
                     case 4329:
-                        tmp += (char)(1034);
+                        tmp += (char)(220);
                         break;
                     case 4330:
-                        tmp += (char)(1114);
+                        tmp += (char)(221);
                         break;
                     case 4331:
-                        tmp += (char)(1035);
+                        tmp += (char)(222);
                         break;
                     case 4332:
-                        tmp += (char)(1115);
+                        tmp += (char)(223);
                         break;
                     case 4333:
-                        tmp += (char)(1038);
+                        tmp += (char)(224);
                         break;
                     case 4334:
-                        tmp += (char)(1118);
+                        tmp += (char)(225);
                         break;
                     case 4335:
-                        tmp += (char)(1039);
+                        tmp += (char)(227);
                         break;
                     case 4336:
-                        tmp += (char)(1119);
+                        tmp += (char)(228);
                         break;
                     default:
                         tmp += str[i];
@@ -730,7 +730,7 @@ namespace ExcelToXML.Controllers
             
             //+1
             
-            //741011 W K D
+            //745600 W K D
 
 
             string connectionString = this.Configuration.GetConnectionString("DefaultConnection");
@@ -952,7 +952,7 @@ namespace ExcelToXML.Controllers
                 BankStatement.AppendChild(Date);
 
                 XmlNode GLOffset = doc.CreateElement("GLOffset");
-                ((XmlElement)GLOffset).SetAttribute("code", "   129000");
+                ((XmlElement)GLOffset).SetAttribute("code", "   100001");
                 BankStatement.AppendChild(GLOffset);
 
                 List<string> TColumnStrings = Configuration.GetSection("TColumnStrings").Get<List<string>>() ?? new List<string>(); ;
@@ -1080,23 +1080,23 @@ namespace ExcelToXML.Controllers
         {
 
    //         reknr bal_vw  omzrek debcrd
-               //129000   B C   D
-               //149110   B D   D
+               //100001   B C   D
+               //140001   B D   D
                //311010   B C   C
-               //741011   W K   D
+               //745600   W K   D
 
 
             if (code == "COM" || code == "FEE")
             {
-                return "741011";
+                return "745600";
             }
             if (code == "CCO" || description.StartsWith("CCO"))//description
             {
-                return "129000";
+                return "100001";
             }
             if(cicmpy.isDebnr == true)
             {
-                return "149110";
+                return "140001";
             }
 
             if(cicmpy.ClassificationId == "300")
@@ -1104,10 +1104,10 @@ namespace ExcelToXML.Controllers
                 return "143010";
             }
 
-            //თუ დებიტორი მაშინ  return '149110'
-            return "312001";
+            //თუ დებიტორი მაშინ  return '140001'
+            return "310001";
 
-            //cicmpy debnr is not null => '149110'
+            //cicmpy debnr is not null => '140001'
         }
 
         public string getUnicode(string text)
@@ -1203,30 +1203,30 @@ namespace ExcelToXML.Controllers
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
 
 
-            //129000   B C   D
-            //149110   B D   D
+            //100001   B C   D
+            //140001   B D   D
             //311010   B C   C
-            //741011   W K   D
+            //745600   W K   D
 
-            if (gLAccountCode == "741011")
+            if (gLAccountCode == "745600")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "W");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "K");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
-            if (gLAccountCode == "312001")
+            if (gLAccountCode == "310001")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "C");
             }
-            if (gLAccountCode == "149110")//149110
+            if (gLAccountCode == "140001")//140001
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "D");
                 ((XmlElement)GLAccount).SetAttribute("side", "D");
             }
-            if (gLAccountCode == "129000")
+            if (gLAccountCode == "100001")
             {
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
@@ -1776,7 +1776,7 @@ namespace ExcelToXML.Controllers
             // სვა შემთხვევაში select vatnumber,crdnr,debnr from cicmpy where VatNumber = '102189454'(მიმღების საიდენთიფიკაციო კოდი)
             // რომელიც null არაა იმით შეივსება
 
-            // if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
+            // if divisio == 150 -> glaccount 745600  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
 
             if (isSum)
             {
@@ -1793,7 +1793,7 @@ namespace ExcelToXML.Controllers
             {
                 return new Cicmpy()
                 {
-                    DefaultCode = "4",
+                    DefaultCode = "200002",
                     FromDB = false,
                     isDebnr = false
                 };
@@ -1802,7 +1802,7 @@ namespace ExcelToXML.Controllers
             {
                 return new Cicmpy()
                 {
-                    DefaultCode = "3",
+                    DefaultCode = "200000",
                     FromDB = false,
                     isDebnr = false
                 };
@@ -1940,7 +1940,7 @@ namespace ExcelToXML.Controllers
 
             var creditorRes = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), IdentNumber, worksheet.Cells[i, 6].Value.ToString(), isSum);
 
-            //if divisio == 150 -> glaccount 741011  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
+            //if divisio == 150 -> glaccount 745600  if division == 300 -> glaccount 747000 if divission == 350 glaccount 747000 else 747000
 
             var glAccountFromDb = getGLAccountCodeFromDB(creditorRes.Crdnr?? "");
 
@@ -1959,7 +1959,7 @@ namespace ExcelToXML.Controllers
             {
                 if (division == "150" || division == "222" )
                 {
-                    gLAccountCode = "741011";
+                    gLAccountCode = "745600";
                 }
                 else
                 {
@@ -1980,7 +1980,7 @@ namespace ExcelToXML.Controllers
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "A");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
             //}
-            //if (gLAccountCode == "741011")
+            //if (gLAccountCode == "745600")
             //{
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "W");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "K");
@@ -1992,13 +1992,13 @@ namespace ExcelToXML.Controllers
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "C");
             //}
-            //if (gLAccountCode == "149110")
+            //if (gLAccountCode == "140001")
             //{
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "D");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("side", "D");
             //}
-            //if (gLAccountCode == "129000")
+            //if (gLAccountCode == "100001")
             //{
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("type", "B");
             //    ((XmlElement)FinEntryLineGLAccount).SetAttribute("subtype", "C");
