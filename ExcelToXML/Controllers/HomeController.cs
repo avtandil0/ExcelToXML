@@ -26,6 +26,8 @@ using Microsoft.AspNetCore.Authorization;
 //getcreditr
 
 
+
+
 namespace ExcelToXML.Controllers
 {
     public class HomeController : Controller
@@ -1092,6 +1094,8 @@ namespace ExcelToXML.Controllers
             }
             if (code == "CCO" || description.StartsWith("CCO"))//description
             {
+                //costcent = 00
+                //costunit = 00
                 return "100001";
             }
             if(cicmpy.isDebnr == true)
@@ -1219,6 +1223,9 @@ namespace ExcelToXML.Controllers
                 ((XmlElement)GLAccount).SetAttribute("type", "B");
                 ((XmlElement)GLAccount).SetAttribute("subtype", "C");
                 ((XmlElement)GLAccount).SetAttribute("side", "C");
+
+                //costcentr = 100
+                //costunit = 00
             }
             if (gLAccountCode == "140001")//140001
             {
@@ -1957,7 +1964,7 @@ namespace ExcelToXML.Controllers
 
             if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE"))
             {
-                if (division == "150" || division == "222" )
+                if (division == "600")
                 {
                     gLAccountCode = "745600";
                 }
@@ -2026,14 +2033,26 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
             XmlNode FinEntryLineCostcenter = doc.CreateElement("Costcenter");
-            ((XmlElement)FinEntryLineCostcenter).SetAttribute("code", "001CC001");
+            if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE") || gLAccountCode == "745600")
+            {
+                ((XmlElement)FinEntryLineCostcenter).SetAttribute("code", "80");
+            }
+            else
+            {
+                ((XmlElement)FinEntryLineCostcenter).SetAttribute("code", "001CC001");
+
+            }
+
+            //chavamtot CostUnit
+            //745600 -> costUnit = 8088.861
+
 
             XmlNode FinEntryLineCostcenterDescription = doc.CreateElement("Description");
             FinEntryLineCostcenterDescription.AppendChild(doc.CreateTextNode("Default cost center"));
             FinEntryLineCostcenter.AppendChild(FinEntryLineCostcenterDescription);
 
             XmlNode FinEntryLineCostcenterGLAccount = doc.CreateElement("GLAccount");
-            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("code", "   719990");
+            ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("code", "     9999");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("type", "D");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("subtype", "W");
             ((XmlElement)FinEntryLineCostcenterGLAccount).SetAttribute("side", "K");
