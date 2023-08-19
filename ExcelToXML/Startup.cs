@@ -80,7 +80,7 @@ namespace ExcelToXML
                 await next();
             });
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
