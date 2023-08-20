@@ -25,7 +25,7 @@ using Microsoft.AspNetCore.Authorization;
 //select dagbknr, reknr from dagbk
 //getcreditr
 
-
+//cost unit - code 8088.861 desc Finance Costs-Transfer Fe -----   COM   da FEE 745600
 
 
 namespace ExcelToXML.Controllers
@@ -1200,8 +1200,8 @@ namespace ExcelToXML.Controllers
 
             var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 6].Value.ToString(), false);
 
-
-            var gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), cr, worksheet.Cells[i, 6].Value.ToString());
+            var code = worksheet.Cells[i, 7].Value.ToString();
+            var gLAccountCode = getGLAccountInEntryLine(code, cr, worksheet.Cells[i, 6].Value.ToString());
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
@@ -1708,6 +1708,19 @@ namespace ExcelToXML.Controllers
             Costcenter.AppendChild(GLOffset);
             GLEntryNode.AppendChild(Costcenter);
 
+            //-------------- Costunit
+            XmlNode Costunit = doc.CreateElement("Costunit");
+            ((XmlElement)Costunit).SetAttribute("code", "00");
+
+            XmlNode CostunitDescription = doc.CreateElement("Description");
+
+            CostunitDescription.AppendChild(doc.CreateTextNode("unknown"));
+
+            Costunit.AppendChild(CostunitDescription);
+
+            GLEntryNode.AppendChild(Costunit);
+
+            //---------------------------
             XmlNode Amount = doc.CreateElement("Amount");
 
             XmlNode Currency = doc.CreateElement("Currency");
@@ -1952,17 +1965,18 @@ namespace ExcelToXML.Controllers
             var glAccountFromDb = getGLAccountCodeFromDB(creditorRes.Crdnr?? "");
 
             string gLAccountCode = "";
+            var code = worksheet.Cells[i, 7].Value.ToString();
             if (!String.IsNullOrEmpty(glAccountFromDb))
             {
                 gLAccountCode = glAccountFromDb;
             }
             else 
             { 
-                gLAccountCode = getGLAccountInEntryLine(worksheet.Cells[i, 7].Value.ToString(), creditorRes, worksheet.Cells[i, 6].Value.ToString());
+                gLAccountCode = getGLAccountInEntryLine(code, creditorRes, worksheet.Cells[i, 6].Value.ToString());
 
             }
 
-            if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE"))
+            if (code == "COM" || (code == "FEE"))
             {
                 if (division == "600")
                 {
@@ -2033,7 +2047,7 @@ namespace ExcelToXML.Controllers
 
             //-----------------------------
             XmlNode FinEntryLineCostcenter = doc.CreateElement("Costcenter");
-            if (worksheet.Cells[i, 7].Value.ToString() == "COM" || (worksheet.Cells[i, 7].Value.ToString() == "FEE") || gLAccountCode == "745600")
+            if (code == "COM" || (code == "FEE") || gLAccountCode == "745600")
             {
                 ((XmlElement)FinEntryLineCostcenter).SetAttribute("code", "80");
             }
@@ -2075,6 +2089,37 @@ namespace ExcelToXML.Controllers
 
             FinEntryLineCostcenter.AppendChild(FinEntryLineGLOffset);
             FinEntryLine.AppendChild(FinEntryLineCostcenter);
+
+            //-------------Costunit
+            XmlNode FinEntryLineCostunit = doc.CreateElement("Costunit");
+            if (code == "COM" || (code == "FEE") )
+            {
+                ((XmlElement)FinEntryLineCostunit).SetAttribute("code", "8088.861");
+            }
+            else
+            {
+                ((XmlElement)FinEntryLineCostunit).SetAttribute("code", "00");
+
+            }
+
+            //chavamtot CostUnit
+            //745600 -> costUnit = 8088.861
+
+
+            XmlNode FinEntryLineCostunitDescription = doc.CreateElement("Description");
+            if (code == "COM" || (code == "FEE"))
+            {
+                FinEntryLineCostunitDescription.AppendChild(doc.CreateTextNode("Finance Costs-Transfer Fe"));
+            }
+            else
+            {
+                FinEntryLineCostunitDescription.AppendChild(doc.CreateTextNode("unknown"));
+
+            }
+            
+            FinEntryLineCostunit.AppendChild(FinEntryLineCostunitDescription);
+
+            FinEntryLine.AppendChild(FinEntryLineCostunit);
 
             //-----------------------------
 
