@@ -482,7 +482,9 @@ namespace ExcelToXML.Controllers
                 @"
                 select distinct dagbk.ID, dagbknr, dbo.getunicode(dagbk.oms25_0) as dagbkDesc, dagbk.reknr,dbo.getunicode(grtbk.oms25_0) as grtbkDesc
                     from dagbk inner join grtbk on dagbk.reknr = grtbk.reknr
-                    where type_dgbk = 'B'";
+                    where type_dgbk = 'B'   
+                    order by dagbknr
+                         ";
 
 
 
