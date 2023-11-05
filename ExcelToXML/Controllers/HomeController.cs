@@ -1080,7 +1080,7 @@ namespace ExcelToXML.Controllers
         }
 
 
-        public string getGLAccountInEntryLine(string code, Cicmpy cicmpy, string description)
+        public string getGLAccountInEntryLine(string code, Cicmpy cicmpy, string description, string vatNumber="")
         {
 
    //         reknr bal_vw  omzrek debcrd
@@ -1089,12 +1089,13 @@ namespace ExcelToXML.Controllers
                //311010   B C   C
                //745600   W K   D
 
+           
 
             if (code == "COM" || code == "FEE")
             {
                 return "745600";
             }
-            if (code == "CCO" || description.StartsWith("CCO"))//description
+            if (code == "CCO" || description.StartsWith("CCO") || vatNumber == "200000")//description
             {
                 //costcent = 00
                 //costunit = 00
@@ -1203,7 +1204,7 @@ namespace ExcelToXML.Controllers
             var cr = getCreditorCode(worksheet.Cells[i, 7].Value.ToString(), worksheet.Cells[i, 16].Value.ToString(), worksheet.Cells[i, 6].Value.ToString(), false);
 
             var code = worksheet.Cells[i, 7].Value.ToString();
-            var gLAccountCode = getGLAccountInEntryLine(code, cr, worksheet.Cells[i, 6].Value.ToString());
+            var gLAccountCode = getGLAccountInEntryLine(code, cr, worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 16].Value.ToString().Trim());
             
             XmlNode GLAccount = doc.CreateElement("GLAccount");
             ((XmlElement)GLAccount).SetAttribute("code", gLAccountCode);
@@ -1974,7 +1975,7 @@ namespace ExcelToXML.Controllers
             }
             else 
             { 
-                gLAccountCode = getGLAccountInEntryLine(code, creditorRes, worksheet.Cells[i, 6].Value.ToString());
+                gLAccountCode = getGLAccountInEntryLine(code, creditorRes, worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 16].Value.ToString().Trim());
 
             }
 
