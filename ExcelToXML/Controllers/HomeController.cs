@@ -1975,7 +1975,7 @@ namespace ExcelToXML.Controllers
             }
             else 
             { 
-                gLAccountCode = getGLAccountInEntryLine(code, creditorRes, worksheet.Cells[i, 6].Value.ToString(), worksheet.Cells[i, 16].Value.ToString().Trim());
+                gLAccountCode = getGLAccountInEntryLine(code, creditorRes, worksheet.Cells[i, 6].Value?.ToString(), worksheet.Cells[i, 16].Value?.ToString().Trim());
 
             }
 
