@@ -1038,7 +1038,17 @@ namespace ExcelToXML.Controllers
                     {
                         existT = true;
                         TIndex = i;
-                        sumAmountForT += Double.Parse(workSheet.Cells[i, 4].Value.ToString());
+                        double amount = 0;
+                        if (workSheet.Cells[i, 4].Value==null)
+                        {
+                            amount = -Double.Parse(workSheet.Cells[i, 5].Value?.ToString());
+                        }
+                        else
+                        {
+                            amount = Double.Parse(workSheet.Cells[i, 4].Value.ToString());
+                        }
+                        sumAmountForT += amount;
+
                     }
 
 
