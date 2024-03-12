@@ -85,17 +85,33 @@ namespace ExcelToXML.Controllers
             {
                 generatedToken = _tokenService.BuildToken(Configuration["Jwt:Key"].ToString(), Configuration["Jwt:Issuer"].ToString(),
                 validUser);
-
-                if (generatedToken != null)
+                if (userModel.UserName == "test")
                 {
-                    HttpContext.Session.SetString("Token", generatedToken);
-                    return RedirectToAction("Index");
+                    if (generatedToken != null)
+                    {
+                        HttpContext.Session.SetString("Token", generatedToken);
+                        return RedirectToAction("Index2");
+                    }
+                    else
+                    {
+                        ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
+
+                        return View("Login");
+                    }
                 }
                 else
                 {
-                    ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
+                    if (generatedToken != null)
+                    {
+                        HttpContext.Session.SetString("Token", generatedToken);
+                        return RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        ViewBag.error = "მომხმარებელი ან პაროლი არასწორია ! ";
 
-                    return View("Login");
+                        return View("Login");
+                    }
                 }
             }
             else
@@ -1098,7 +1114,7 @@ namespace ExcelToXML.Controllers
 
             if (code == "COM" || code == "FEE")
             {
-                return "741011";
+                return "747000";
             }
             if (code == "CCO" || description.StartsWith("CCO"))//description
             {
@@ -1106,7 +1122,7 @@ namespace ExcelToXML.Controllers
             }
             if(cicmpy.isDebnr == true)
             {
-                return "149110";
+                return "141010";
             }
 
             if(cicmpy.ClassificationId == "300")
@@ -1115,7 +1131,7 @@ namespace ExcelToXML.Controllers
             }
 
             //თუ დებიტორი მაშინ  return '149110'
-            return "312001";
+            return "311010";
 
             //cicmpy debnr is not null => '149110'
         }
